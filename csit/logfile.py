@@ -1,5 +1,10 @@
+import logging
 import os
+import re
 from subprocess import Popen
+
+
+LOG = logging.getLogger(__name__)
 
 
 class LogFile():
@@ -28,5 +33,22 @@ class LogFile():
             if not os.path.isdir(self.jobpath):
                 raise
 
-    def parse_log(self):
-        pass
+    def read_chunks(self, fp):
+        while True:
+            data = fp.read(64000)
+            if not data:
+                break
+            yield data
+
+    def parse_log(self, log):
+        # logfile = "/tmp/log.s2.html"
+        logfile = "/tmp/testjob/log.html"
+        # re_st = re.compile(r"ROBOT MESSAGE: Starting test")
+        re_st = re.compile(r"dump-flows")
+        cnt = 0
+        with open(logfile, 'rb') as fp:
+            for chunk in self.read_chunks(fp):
+                for m in re_st.finditer(chunk):
+                    print('%02d-%02d: %s' % (m.start(), m.end(), m.group(0)))
+                    cnt += 1
+        print "total matches: {}".format(cnt)

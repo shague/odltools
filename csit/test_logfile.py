@@ -21,5 +21,8 @@ class TestLogFile(unittest.TestCase):
         fname = "{}/log.html".format(self.logfile.jobpath)
         self.assertTrue(os.path.isfile(fname))
 
+    def test_parse_log(self):
+        self.logfile.parse_log(None)
+
 if __name__ == '__main__':
     unittest.main()

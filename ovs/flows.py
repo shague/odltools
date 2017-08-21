@@ -81,7 +81,6 @@ class Flows:
                 idle_timeo = " {}={}".format(Flows.idle_timeout, line[Flows.idle_timeout])
             else:
                 idle_timeo = ""
-            # nactions = regex.sub(r"\1(" + tables.get_table_name(17) + ")", line[Flows.actions])
             nactions = regex.sub(r"\1(" + regex.groups[0] + ")", line[Flows.actions])
 
             fline = "{:9} {:8} {:3} {:13} {:6} {:12} priority={} actions={}{}{}" \
