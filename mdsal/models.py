@@ -3,14 +3,14 @@ import request
 
 
 class Model:
-    config = "config"
-    operational = "operational"
-    user = "admin"
-    pw = "admin"
+    CONFIG = "config"
+    OPERATIONAL = "operational"
+    USER = "admin"
+    PW = "admin"
 
     def __init__(self, name, container, store, ip, port, debug=0):
         self.name = name
-        self.container = container
+        self.CONTAINER = container
         self.store = store
         self.ip = ip
         self.port = port
@@ -27,11 +27,11 @@ class Model:
 
     def make_url(self):
         url = "http://{}:{}/restconf/{}/{}:{}".format(self.ip, self.port, self.store,
-                                                      self.name, self.container)
+                                                      self.name, self.CONTAINER)
         return url
 
     def get_from_odl(self):
-        self.data = request.get(self.url, self.user, self.pw)
+        self.data = request.get(self.url, self.USER, self.PW)
         return self.data
 
     def get_from_file(self, filename):

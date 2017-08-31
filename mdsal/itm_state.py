@@ -5,11 +5,11 @@ name = "itm-state"
 
 
 class DpnEndpoints(Model):
-    container = "dpn-endpoints"
-    dpn_teps_info = "DPN-TEPs-info"
-    dpn_id = "DPN-ID"
-    tunnel_end_points = "tunnel-end-points"
-    ip_address = "ip-address"
+    CONTAINER = "dpn-endpoints"
+    DPN_TEPS_INFO = "DPN-TEPs-info"
+    DPN_ID = "DPN-ID"
+    TUNNEL_END_POINTS = "tunnel-end-points"
+    IP_ADDRESS = "ip-address"
 
     def item_generator(self, json_input, lookup_key):
         if isinstance(json_input, dict):
@@ -25,27 +25,27 @@ class DpnEndpoints(Model):
                     yield item_val
 
     def get_dpn_teps_infos(self):
-        return self.data[self.container][self.dpn_teps_info]
+        return self.data[self.CONTAINER][self.DPN_TEPS_INFO]
 
     def get_dpn_teps_info(self, dpn_id):
         dpn_teps_infos = self.get_dpn_teps_infos()
         for dpn_teps_info in dpn_teps_infos:
-            if dpn_teps_info[self.dpn_id] == dpn_id:
+            if dpn_teps_info[self.DPN_ID] == dpn_id:
                 return dpn_teps_info
 
     def get_tunnel_endpoints(self, dpn_id):
         dpn_teps_infos = self.get_dpn_teps_infos()
         for dpn_teps_info in dpn_teps_infos:
-            if dpn_teps_info[self.dpn_id] == dpn_id:
-                return dpn_teps_info[self.tunnel_end_points]
+            if dpn_teps_info[self.DPN_ID] == dpn_id:
+                return dpn_teps_info[self.TUNNEL_END_POINTS]
 
     def get_dpn_ids(self):
-        return self.get_kv(DpnEndpoints.dpn_id, self.data, values=[])
+        return self.get_kv(DpnEndpoints.DPN_ID, self.data, values=[])
 
     def get_ip_address(self, dpn_id):
         tunnel_endpoints = self.get_tunnel_endpoints(dpn_id)
-        return tunnel_endpoints[0][self.ip_address]
+        return tunnel_endpoints[0][self.IP_ADDRESS]
 
 
 def dpn_endpoints(store, ip, port, debug=0):
-    return DpnEndpoints(name, DpnEndpoints.container, store, ip, port, debug)
+    return DpnEndpoints(name, DpnEndpoints.CONTAINER, store, ip, port, debug)

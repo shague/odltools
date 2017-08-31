@@ -40,6 +40,7 @@ class TestRobotFiles(unittest.TestCase):
 
         self.robotfile.mkdir_job_path()
         self.robotfile.write_pdata()
+        self.robotfile.write_debug_pdata()
 
 if __name__ == '__main__':
     unittest.main()

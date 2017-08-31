@@ -4,6 +4,8 @@ import re
 import xml.etree.cElementTree as ET
 from subprocess import Popen
 
+from ovs.flows import Flows
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -12,6 +14,7 @@ logger = logging.getLogger(__name__)
 class RobotFiles:
     TMP = "/tmp"
     CHUNK_SIZE = 65536
+    DUMP_FLOWS = "sudo ovs-ofctl dump-flows br-int -OOpenFlow13"
 
     def __init__(self, gzdatafilepath, outdir, jobtag):
         if outdir is None:
@@ -210,14 +213,32 @@ class RobotFiles:
                 ndir = tdir + "/" + nodeid
                 self.mkdir(ndir)
                 for cindex, (cmdid, cmd) in enumerate(node.items()):
-                    filename = ndir + "/" + cmdid.replace(" ", "_") + ".txt"
+                    filename = ndir + "/" + self.fix_command_names(cmdid) + ".txt"
                     with open(filename, 'w') as fp:
                         if cmd is not None:
                             fp.writelines(cmd)
             mdir = tdir + "/models"
             self.mkdir(mdir)
             for mindex, (model, mdata) in enumerate(test['models'].items()):
-                filename = mdir + "/" + model.replace("/", "_") + ".txt"
+                filename = mdir + "/" + self.fix_model_name(model) + ".txt"
                 with open(filename, 'w') as fp:
                     if mdata is not None:
                         fp.writelines(mdata)
+
+    def write_debug_pdata(self):
+        for tindex, (testid, test) in enumerate(self.pdata.items()):
+            tdir = self.outdir + "/" + testid + "_" + test["name"].replace(" ", "_")
+            for nindex, (nodeid, node) in enumerate(test['nodes'].items()):
+                ndir = tdir + "/" + nodeid
+                if RobotFiles.DUMP_FLOWS not in node:
+                    continue
+                filename = ndir + "/" + self.fix_command_names(RobotFiles.DUMP_FLOWS) + ".f.txt"
+                dump_flows = node[RobotFiles.DUMP_FLOWS]
+                flows = Flows(dump_flows)
+                flows.write_fdata(filename)
+
+    def fix_command_names(self, cmd):
+        return cmd.replace(" ", "_")
+
+    def fix_model_name(self, model):
+        return model.replace("/", "_")

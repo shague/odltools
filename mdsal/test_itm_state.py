@@ -10,7 +10,7 @@ port = "8080"
 
 class TestItmState(unittest.TestCase):
     def setUp(self):
-        self.dpn_endpoints = itm_state.DpnEndpoints(self, DpnEndpoints.container, Model.config, ip, port, 1)
+        self.dpn_endpoints = itm_state.DpnEndpoints(self, DpnEndpoints.CONTAINER, Model.CONFIG, ip, port, 1)
         self.data = self.dpn_endpoints.get_from_file("itm-state_dpn-endpoints.json")
 
     def test_get_from_file(self):
@@ -35,10 +35,10 @@ class TestItmState(unittest.TestCase):
         ip_address = self.dpn_endpoints.get_ip_address(dpn_id)
         print "ip_address: {}".format(ip_address)
 
-        self.get_info(DpnEndpoints.container)
-        self.get_info(DpnEndpoints.dpn_teps_info)
-        self.get_info(DpnEndpoints.tunnel_end_points)
-        self.get_info(DpnEndpoints.dpn_id)
+        self.get_info(DpnEndpoints.CONTAINER)
+        self.get_info(DpnEndpoints.DPN_TEPS_INFO)
+        self.get_info(DpnEndpoints.TUNNEL_END_POINTS)
+        self.get_info(DpnEndpoints.DPN_ID)
 
     def get_info(self, key):
         info = self.dpn_endpoints.get_kv(key, self.data, values=[])

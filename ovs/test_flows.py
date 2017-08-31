@@ -19,14 +19,11 @@ class TestFlows(unittest.TestCase):
         print "parsed data:\n{}".format(pformat(pdata))
 
     def test_format_data(self):
-        self.flows.process_data()
-        fdata = self.flows.format_data(1)
+        fdata = self.flows.format_data()
         print "parsed data:\n{}".format(pformat(fdata))
 
     def test_write_file(self):
-        self.flows.process_data()
-        flines = self.flows.format_data()
-        request.write_file("/tmp/flow_dumps.out.txt", flines)
+        self.flows.write_fdata("/tmp/flow_dumps.out.txt")
 
     def test_get_table_name(self):
         print "table: {} is the {} table".format(17, tables.get_table_name(17))
