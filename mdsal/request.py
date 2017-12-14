@@ -1,24 +1,24 @@
 import json
+import logging
 import requests
 
 
-debug = 0
+logging.basicConfig(format="%(levelname)-8s [%(module)s:%(lineno)d] %(message)s",
+                    level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
-def set_debug(level):
-    global debug
-    debug = level
+def set_log_level(level):
+    logger.setLevel(level)
 
 
 def debug_print(text1, data):
-    if debug:
-        print "request: {}".format(text1)
-        print json.dumps(data)
-        print json.dumps(data, indent=4, separators=(',', ': '))
+    logger.debug("request: %s", text1)
+    logger.debug("%s", json.dumps(data))
+    logger.debug("%s", json.dumps(data, indent=4, separators=(',', ': ')))
 
 
 def get(url, user, pw):
-    global debug
     resp = requests.get(url, auth=(user, pw))
     # TODO: add error checking of the response
     data = resp.json()

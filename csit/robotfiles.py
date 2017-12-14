@@ -12,17 +12,18 @@ logger = logging.getLogger(__name__)
 
 
 class RobotFiles:
+    JOBTAG = "job"
     TMP = "/tmp"
     CHUNK_SIZE = 65536
     DUMP_FLOWS = "sudo ovs-ofctl dump-flows br-int -OOpenFlow13"
 
-    def __init__(self, gzdatafilepath, outdir, jobtag):
+    def __init__(self, infile, outdir, jobtag):
         if outdir is None:
             outdir = RobotFiles.TMP
+        if jobtag is None:
+            jobtag = RobotFiles.JOBTAG
         self.outdir = "{}/{}".format(outdir, jobtag)
-        self.gzdatafilepath = gzdatafilepath
-        basename = os.path.splitext(os.path.basename(self.gzdatafilepath))[0]
-        self.datafilepath = "{}/{}".format(self.outdir, basename)
+        self.datafilepath = infile
         self.pdata = {}
         self.re_normalize_text = re.compile(r"( \n)|(\[A\[C.*)")
         self.re_uri = re.compile(r"uri=(?P<uri>.*),")
@@ -32,7 +33,10 @@ class RobotFiles:
         logger.setLevel(level)
 
     def gunzip_output_file(self):
-        Popen("gunzip -cfk {} > {}".format(self.gzdatafilepath, self.datafilepath), shell=True).wait()
+        infile = self.datafilepath
+        basename = os.path.splitext(os.path.basename(self.datafilepath))[0]
+        self.datafilepath = "{}/{}".format(self.outdir, basename)
+        Popen("gunzip -cfk {} > {}".format(infile, self.datafilepath), shell=True).wait()
 
     def mkdir(self, path):
         try:
@@ -85,8 +89,7 @@ class RobotFiles:
         return outtext
 
     def print_config(self):
-        logger.info("self: gzdatafilepath: %s, outdir: %s, datafilepath: %s",
-                    self.gzdatafilepath, self.outdir, self.datafilepath)
+        logger.info("datafilepath: %s, outdir: %s", self.datafilepath, self.outdir)
 
     def process_element(self, state, event, element):
         tag = element.tag
@@ -233,8 +236,9 @@ class RobotFiles:
                 if RobotFiles.DUMP_FLOWS not in node:
                     continue
                 filename = ndir + "/" + self.fix_command_names(RobotFiles.DUMP_FLOWS) + ".f.txt"
+                logger.info("Processing: %s", filename)
                 dump_flows = node[RobotFiles.DUMP_FLOWS]
-                flows = Flows(dump_flows)
+                flows = Flows(dump_flows, logging.DEBUG)
                 flows.write_fdata(filename)
 
     def fix_command_names(self, cmd):

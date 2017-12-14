@@ -73,3 +73,4 @@ OFPST_FLOW reply (OF1.3) (xid=0x2):
  cookie=0x6900000, duration=892.612s, table=243, n_packets=0, n_bytes=0, priority=62020,ct_state=-new+est-rel-inv+trk actions=resubmit(,220)
  cookie=0x6900000, duration=892.612s, table=243, n_packets=0, n_bytes=0, priority=62020,ct_state=-new-est+rel-inv+trk actions=resubmit(,220)
  cookie=0x6900000, duration=892.612s, table=243, n_packets=0, n_bytes=0, priority=0 actions=drop
+ [jenkins@releng-22320-97-2-devstack-ocata-0 ~]>
