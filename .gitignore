@@ -31,3 +31,4 @@ target-ide/
 yang-gen-config
 yang-gen-sal
 maven-metadata-local.xml
+.yoy
