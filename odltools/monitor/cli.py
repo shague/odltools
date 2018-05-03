@@ -5,5 +5,5 @@ def haha(args):
 def add_parser(parsers):
     parser = parsers.add_parser("tim", description="timothy")
     parser.add_argument("tim",
-                        help="say something funny")
+                        help="say something funny!")
     parser.set_defaults(func=haha)
