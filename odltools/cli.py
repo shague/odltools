@@ -1,8 +1,9 @@
 import argparse
 
-import odltools.mdsal.cli
-import odltools.netvirt.cli
 import odltools.csit.cli
+import odltools.mdsal.cli
+import odltools.monitor.cli
+import odltools.netvirt.cli
 
 
 def create_parser():
@@ -14,6 +15,7 @@ def create_parser():
     subparsers = parser.add_subparsers(dest="command", description="Command Tool")
     odltools.csit.cli.add_parser(subparsers)
     odltools.mdsal.cli.add_parser(subparsers)
+    odltools.monitor.cli.add_parser(subparsers)
     odltools.netvirt.cli.add_parser(subparsers)
 
     return parser
