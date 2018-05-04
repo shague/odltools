@@ -1,5 +1,5 @@
 from odltools.mdsal.models.model import Model
-import utils
+from odltools.netvirt import utils
 
 
 MAC_LEN = 17

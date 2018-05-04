@@ -1,4 +1,4 @@
-import request
+from odltools.mdsal import request
 
 DSM_FILE = 0
 DSM_DSTYPE = 1
@@ -137,7 +137,7 @@ DSMAP = {
 
 
 def get_all_dumps(args):
-    for res in DSMAP.itervalues():
+    for res in DSMAP.values():
         store = res[DSM_DSTYPE]
         model_path = res[DSM_PATH]
         path_split = split_model_path(model_path)

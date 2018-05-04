@@ -1,5 +1,5 @@
-import cli
-import logg
+from odltools import cli
+from odltools import logg
 
 
 def main():

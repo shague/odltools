@@ -3,8 +3,8 @@ import logging
 from odltools.mdsal.models.model import Model
 from odltools.mdsal.models.opendaylight_inventory import Nodes
 from odltools.netvirt import utils
-import config
-import flow_parser
+from odltools.netvirt import config
+from odltools.netvirt import flow_parser
 
 
 logger = logging.getLogger("netvirt.flows")
@@ -88,7 +88,7 @@ def get_all_flows(args, modules=None, filter_by=None):
         einsts = einsts or config.gmodels.elan_elan_instances.get_clist_by_key()
         eifaces = eifaces or config.gmodels.elan_elan_interfaces.get_elan_interfaces_by_key()
     flows = []
-    for node in of_nodes.itervalues():
+    for node in of_nodes.values():
         tables = [x for x in node[Nodes.NODE_TABLE] if x['id'] in table_list]
         for table in tables:
             for flow in table.get('flow', []):
@@ -246,7 +246,6 @@ def get_iface_for_lport(ifaces, ifindexes, lport):
 
 
 def get_eltag_for_iface(eifaces, einsts, iface):
-    print "eifaces: {}".format(eifaces)
     ifname = iface.get('name') if iface else None
     eiface = eifaces.get(ifname) if ifname else None
     einst_name = eiface.get('elan-instance-name') if eiface else None
@@ -292,7 +291,7 @@ def get_stale_flows(modules=['ifm']):
         eifaces = eifaces or config.gmodels.elan_elan_interfaces.get_elan_interfaces_by_key()
         ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_clist_by_key()
     stale_flows = []
-    for node in of_nodes.itervalues():
+    for node in of_nodes.values():
         tables = [x for x in node[Nodes.NODE_TABLE] if x['id'] in table_list]
         for table in tables:
             for flow in table.get('flow', []):
@@ -316,12 +315,12 @@ def get_stale_flows(modules=['ifm']):
 def show_link_flow_binding(args):
     stale_ids, bindings = get_stale_bindings(args)
     flows = get_stale_flows()
-    print len(stale_ids), len(flows)
+    print(len(stale_ids), len(flows))
     for flow in flows:
         if flow['ifname'] in stale_ids and 'bound-services' in bindings[flow['ifname']]:
-            print 'Flow with binding: ', flow['ifname']
+            print("Flow with binding: {}".format(flow['ifname']))
         else:
-            print 'Flow without binding: ', flow['ifname']
+            print("Flow without binding: {}".format(flow['ifname']))
 
 
 def show_stale_flows(args, sort_by='table'):
@@ -347,13 +346,11 @@ def show_stale_flows(args, sort_by='table'):
         ip_list = get_ips_for_iface(nports, flow.get('ifname'))
         if ip_list:
             flow['iface-ips'] = ip_list
-        result = 'Table:{}, Host:{}, FlowId:{}{}'.format(
-            flow['table'], host, flow['id'],
-            utils.show_optionals(flow))
-        print result
+        result = "Table:{}, Host:{}, FlowId:{}{}".format(flow['table'], host, flow['id'], utils.show_optionals(flow))
+        print(result)
         # path = get_data_path('flows', flow)
-        # print('http://192.168.2.32:8383/restconf/config/{}'.format(path))
-        # print 'Flow:', utils.format_json(args, flow_parser.parse_flow(flow['flow']))
+        # print("http://192.168.2.32:8383/restconf/config/{}".format(path))
+        # print("Flow: ", utils.format_json(args, flow_parser.parse_flow(flow['flow'])))
 
 
 def show_elan_flows(args):
@@ -368,11 +365,11 @@ def show_elan_flows(args):
     compute_map = config.gmodels.odl_inventory_nodes_operational.get_dpn_host_mapping()
     for flow in utils.sort(get_all_flows(args, modules=['elan']), 'id'):
         host = compute_map.get(flow.get('dpnid'), flow.get('dpnid'))
-        result = 'MacHost:{}{}, Table:{}, FlowId:{}, {}, Flow:{}'.format(
+        result = "MacHost:{}{}, Table:{}, FlowId:{}, {}, Flow:{}".format(
             flow['id'][-17:], host, flow['table'], flow['id'], utils.show_optionals(flow),
             utils.format_json(args, flow_parser.parse_flow(flow['flow'])))
-        print result
-        # print 'Flow:', utils.format_json(args, flow_parser.parse_flow(flow['flow']))
+        print(result)
+        # print("Flow: {}".format(utils.format_json(args, flow_parser.parse_flow(flow['flow']))))
 
 
 def get_matchstr(args, flow):
@@ -416,15 +413,15 @@ def show_dup_flows(args):
         if len(v) > 1:
             dpnid = k.split(':')[0]
             host = compute_map.get(dpnid, dpnid)
-            result = 'Host:{}, FlowCount:{}, MatchKey:{}, ElanTag:{}'.format(host, len(v), k, v[0].get('elan-tag'))
-            print result
+            result = "Host:{}, FlowCount:{}, MatchKey:{}, ElanTag:{}".format(host, len(v), k, v[0].get('elan-tag'))
+            print(result)
             for idx, flow in enumerate(v):
                 result = "Duplicate"
                 mac_addr = flow.get('dst-mac')
                 if mac_addr and mmac.get(mac_addr):
                     result = is_correct_elan_flow(flow, mmac.get(mac_addr), einsts, host)
-                print '    {} Flow-{}:{}'.format(result, idx,
-                                                 utils.format_json(args, flow_parser.parse_flow(flow.get('flow'))))
+                print("    {} Flow-{}:{}".format(result, idx,
+                                                 utils.format_json(args, flow_parser.parse_flow(flow.get('flow')))))
 
 
 def show_learned_mac_flows(args):
@@ -457,8 +454,8 @@ def show_learned_mac_flows(args):
             result = 'Table:{}, Host:{}, FlowId:{}{}'.format(
                 flow_info.get('table'), host, flow.get('id'),
                 utils.show_optionals(flow_info))
-            print result
-            print 'Flow:{}'.format(utils.format_json(args, flow_parser.parse_flow(flow)))
+            print(result)
+            print("Flow: {}".format(utils.format_json(args, flow_parser.parse_flow(flow))))
 
 
 def get_stale_bindings(args):
@@ -484,8 +481,8 @@ def dump_flows(args, modules=None, sort_by='table', filter_by=None):
         result = 'Table:{}, Host:{}, FlowId:{}{}'.format(
             flow['table'], host, flow['id'],
             utils.show_optionals(flow))
-        print result
-        print 'Flow:', utils.format_json(args, flow_parser.parse_flow(flow['flow']))
+        print(result)
+        print("Flow: {}".format(utils.format_json(args, flow_parser.parse_flow(flow['flow']))))
 
 
 def show_all_flows(args):

@@ -1,4 +1,4 @@
-import cmd
+from odltools.mdsal import cmd
 
 
 def add_dump_parser(parsers):

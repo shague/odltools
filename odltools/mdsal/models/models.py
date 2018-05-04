@@ -1,17 +1,17 @@
-import elan
-import id_manager
-import ietf_interfaces
-import interface_service_bindings
-import itm_state
-import l3vpn
-import mip
-import network_topology
-import neutron
-import odl_fib
-import odl_interface_meta
-import odl_l3vpn
-import opendaylight_inventory
-from model import Model
+from odltools.mdsal.models import elan
+from odltools.mdsal.models import id_manager
+from odltools.mdsal.models import ietf_interfaces
+from odltools.mdsal.models import interface_service_bindings
+from odltools.mdsal.models import itm_state
+from odltools.mdsal.models import l3vpn
+from odltools.mdsal.models import mip
+from odltools.mdsal.models import network_topology
+from odltools.mdsal.models import neutron
+from odltools.mdsal.models import odl_fib
+from odltools.mdsal.models import odl_interface_meta
+from odltools.mdsal.models import odl_l3vpn
+from odltools.mdsal.models import opendaylight_inventory
+from odltools.mdsal.models.model import Model
 
 
 class Singleton(object):

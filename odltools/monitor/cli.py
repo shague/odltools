@@ -1,5 +1,5 @@
 def haha(args):
-    print "tim, tim, bo-bim, banana-fana, foo-fim, tiiiimmm"
+    print("tim, tim, bo-bim, banana-fana, foo-fim, tiiiimmm")
 
 
 def add_parser(parsers):

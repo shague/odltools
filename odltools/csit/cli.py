@@ -1,4 +1,4 @@
-import robotfiles
+from odltools.csit import robotfiles
 
 
 def add_parser(subparsers):

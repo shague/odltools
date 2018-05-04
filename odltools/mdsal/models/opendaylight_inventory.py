@@ -20,18 +20,18 @@ class Nodes(Model):
         key = "group-id"
         group_dict = collections.defaultdict(dict)
         nodez = of_nodes or self.get_clist_by_key()
-        for node in nodez.itervalues():
+        for node in nodez.values():
             dpnid = self.get_dpn_from_ofnodeid(node['id'])
             for group in node.get(Nodes.NODE_GROUP, []):
                 if group_dict.get(dpnid) and group_dict.get(dpnid).get(group[key]):
-                    print "Duplicate: dpn_id: {}, group: {}".format(dpnid, group[key])
+                    print("Duplicate: dpn_id: {}, group: {}".format(dpnid, group[key]))
                 group_dict[dpnid][group[key]] = group
         return dict(group_dict)
 
     def get_dpn_host_mapping(self, oper_nodes=None):
         nodes_dict = {}
         nodez = oper_nodes or self.get_clist_by_key()
-        for node in nodez.itervalues():
+        for node in nodez.values():
             dpnid = self.get_dpn_from_ofnodeid(node['id'])
             nodes_dict[dpnid] = node.get('flow-node-inventory:description', '')
         return nodes_dict

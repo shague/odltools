@@ -1,8 +1,6 @@
 import logging
-import unittest
-
 import os
-
+import unittest
 from odltools import logg
 from odltools.netvirt import ovs_flows
 from odltools.netvirt import request
@@ -17,11 +15,11 @@ class TestFlows(unittest.TestCase):
         self.flows = ovs_flows.Flows(self.data)
 
     def test_process_data(self):
-        # print "pretty_print:\n{}".format(self.flows.pretty_print(self.flows.pdata))
+        # print("pretty_print:\n{}".format(self.flows.pretty_print(self.flows.pdata)))
         self.assertIsNotNone(self.flows.data)
 
     def test_format_data(self):
-        # print "pretty_print:\n{}".format(self.flows.pretty_print(self.flows.fdata))
+        # print("pretty_print:\n{}".format(self.flows.pretty_print(self.flows.fdata)))
         self.assertIsNotNone(self.flows.fdata)
 
     def test_write_file(self):

@@ -1,9 +1,8 @@
 import logging
 import xml.etree.cElementTree as ET
-from subprocess import Popen
-
 import os
 import re
+from subprocess import Popen
 
 from odltools.netvirt import ovs_flows
 

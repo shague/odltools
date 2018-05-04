@@ -26,7 +26,7 @@ class TestCmd(unittest.TestCase):
         cmd.get_all_dumps(self.args)
 
         # assert each model has been saved to a file
-        for res in cmd.DSMAP.itervalues():
+        for res in cmd.DSMAP.values():
             store = res[cmd.DSM_DSTYPE]
             model_path = res[cmd.DSM_PATH]
             path_split = cmd.split_model_path(model_path)

@@ -1,5 +1,4 @@
 import unittest
-
 from odltools import cli
 from odltools.csit import robotfiles
 

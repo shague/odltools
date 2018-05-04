@@ -1,6 +1,7 @@
-import analyze
 import argparse
-import show
+
+from odltools.netvirt import analyze
+from odltools.netvirt import show
 
 
 def add_common_args(parser):

@@ -1,6 +1,5 @@
 import logging
 import unittest
-
 from odltools import logg
 from odltools.netvirt import tables
 
