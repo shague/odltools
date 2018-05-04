@@ -1,16 +1,8 @@
 import json
 import logging
 
-from odltools.mdsal.models import elan
-from odltools.mdsal.models import id_manager
-# from odltools.mdsal.models import ietf_interfaces
-# from odltools.mdsal.models import interface_service_bindings
-from odltools.mdsal.models import neutron
-from odltools.mdsal.models import opendaylight_inventory
 from odltools.mdsal.models.models import Model
-# from odltools.mdsal.models.models import Models
 from odltools.mdsal.models.opendaylight_inventory import Nodes
-# from odltools.mdsal.models.models import Models
 from odltools.netvirt import config
 from odltools.netvirt import flows
 from odltools.netvirt import utils
@@ -20,15 +12,16 @@ logger = logging.getLogger("netvirt.show")
 
 
 def show_elan_instances(args):
-    elan_elan_instances = elan.elan_instances(Model.CONFIG, args)
-    instances = elan_elan_instances.get_clist_by_key()
+    config.get_models(args, {"elan_elan_instances"})
+    instances = config.gmodels.elan_elan_instances.get_clist_by_key()
     for k, v in instances.items():
         print("ElanInstance: {}, {}".format(k, utils.format_json(args, v)))
 
 
 def get_duplicate_ids(args):
+    config.get_models(args, {"id_manager_id_pools"})
+    id_manager_id_pools = config.gmodels.id_manager.id_pools(Model.CONFIG, args)
     duplicate_ids = {}
-    id_manager_id_pools = id_manager.id_pools(Model.CONFIG, args)
     for pool in id_manager_id_pools.get_id_pools_by_key().values():
         id_values = {}
         for id_entry in pool.get('id-entries', []):
@@ -49,8 +42,8 @@ def get_duplicate_ids(args):
 
 
 def show_idpools(args):
-    neutron_neutron = neutron.neutron(Model.CONFIG, args)
-    ports = neutron_neutron.get_ports_by_key()
+    config.get_models(args, {"neutron_neutron"})
+    ports = config.gmodels.neutron_neutron.get_ports_by_key()
     iface_ids = []
     for k, v in get_duplicate_ids(args).iteritems():
         result = "Id:{},Keys:{}".format(k, json.dumps(v.get('id-keys')))
@@ -69,9 +62,9 @@ def show_idpools(args):
 
 
 def show_groups(args):
-    odl_inventory_nodes_config = opendaylight_inventory.nodes(Model.CONFIG, args)
-    of_nodes = odl_inventory_nodes_config.get_clist_by_key()
-    groups = odl_inventory_nodes_config.get_groups(of_nodes)
+    config.get_models(args, {"odl_inventory_nodes_config"})
+    of_nodes = config.gmodels.odl_inventory_nodes_config.get_clist_by_key()
+    groups = config.gmodels.odl_inventory_nodes_config.get_groups(of_nodes)
     for dpn in groups:
         for group_key in groups[dpn]:
             print("Dpn: {}, ID: {}, Group: {}".format(dpn, group_key, utils.format_json(args, groups[dpn][group_key])))
@@ -98,8 +91,9 @@ def show_stale_bindings(args):
 
 
 def show_tables(args):
-    odl_inventory_nodes_config = opendaylight_inventory.nodes(Model.CONFIG, args)
-    of_nodes = odl_inventory_nodes_config.get_clist_by_key()
+    config.get_models(args, {"odl_inventory_nodes_config"})
+    of_nodes = config.gmodels.odl_inventory_nodes_config.get_clist_by_key()
+
     tables = set()
     for node in of_nodes.values():
         for table in node[Nodes.NODE_TABLE]:

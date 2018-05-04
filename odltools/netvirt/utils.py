@@ -47,7 +47,7 @@ def sort(data, field):
 
 def to_hex(data, ele=None):
     if not ele:
-        data = ("0x%x" % data) if data else None
+        data = ("0x%x" % int(data)) if data else None
         return data
     elif data.get(ele):
         data[ele] = "0x%x" % data[ele]

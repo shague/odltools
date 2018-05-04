@@ -2,36 +2,30 @@ from odltools.netvirt import config
 from odltools.netvirt import flow_parser
 from odltools.netvirt import flows
 from odltools.mdsal.models import constants
-from odltools.mdsal.models import ietf_interfaces
-from odltools.mdsal.models import itm_state
-from odltools.mdsal.models import l3vpn
-from odltools.mdsal.models import neutron
 from odltools.mdsal.models.opendaylight_inventory import Nodes
 from odltools.mdsal.models.model import Model
 from odltools.netvirt import utils
 
 
-def print_keys(ifaces, ifstates):
-    print("InterfaceNames: {}\n".format(ifaces.keys()))
-    print("IfStateNames: {}".format(ifstates.keys()))
+def print_keys(args, ifaces, ifstates):
+    print("InterfaceNames: {}\n".format(utils.format_json(args, ifaces.keys())))
+    print("IfStateNames: {}".format(utils.format_json(args, ifstates.keys())))
 
 
 def by_ifname(args, ifname, ifstates, ifaces):
-    itm_state_tunnels_state = itm_state.tunnels_state(Model.OPERATIONAL, args)
-    # itm_state_tunnels_list = itm_state.tunnels_list(Model.CONFIG, args)
-    neutron_neutron = neutron.neutron(Model.CONFIG, args)
+    config.get_models(args, {
+        "itm_state_tunnels_state",
+        "neutron_neutron"})
     ifstate = ifstates.get(ifname)
     iface = ifaces.get(ifname)
     port = None
     tunnel = None
     tun_state = None
     if iface and iface.get('type') == constants.IFTYPE_VLAN:
-        ports = neutron_neutron.get_ports_by_key()
+        ports = config.gmodels.neutron_neutron.get_ports_by_key()
         port = ports.get(ifname)
     elif iface and iface.get('type') == constants.IFTYPE_TUNNEL:
-        # tunnels = itm_state_tunnels_state.get_clist_by_key()
-        # tunnel = tunnels.get(ifname)
-        tun_states = itm_state_tunnels_state.get_clist_by_key()
+        tun_states = config.gmodels.itm_state_tunnels_state.get_clist_by_key()
         tun_state = tun_states.get(ifname)
     else:
         print("UNSUPPORTED IfType")
@@ -39,15 +33,15 @@ def by_ifname(args, ifname, ifstates, ifaces):
 
 
 def analyze_interface(args):
-    ietf_interfaces_interfaces = ietf_interfaces.interfaces(Model.CONFIG, args)
-    ifaces = ietf_interfaces_interfaces.get_clist_by_key()
-
-    ietf_interfaces_interfaces_state = ietf_interfaces.interfaces_state(Model.OPERATIONAL, args)
-    ifstates = ietf_interfaces_interfaces_state.get_clist_by_key()
+    config.get_models(args, {
+        "ietf_interfaces_interfaces",
+        "ietf_interfaces_interfaces_state"})
+    ifaces = config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
+    ifstates = config.gmodels.ietf_interfaces_interfaces_state.get_clist_by_key()
 
     if not args.ifname:
-        print_keys(ifaces, ifstates)
-        exit(1)
+        print_keys(args, ifaces, ifstates)
+        return
 
     ifname = args.ifname
     iface, ifstate, port, tunnel, tunState = by_ifname(args, ifname, ifstates, ifaces)
@@ -69,16 +63,17 @@ def analyze_interface(args):
 
 
 def analyze_trunks(args):
-    ietf_interfaces_interfaces = ietf_interfaces.interfaces(Model.CONFIG, args)
-    # ietf_interfaces_interfaces_state = ietf_interfaces.interfaces_state(Model.OPERATIONAL, args)
-    l3vpn_vpn_interfaces = l3vpn.vpn_instance_to_vpn_id(Model.CONFIG, args)
-    neutron_neutron = neutron.neutron(Model.CONFIG, args)
+    config.get_models(args, {
+        "ietf_interfaces_interfaces",
+        # "ietf_interfaces_interfaces_state",
+        "l3vpn_vpn_interfaces",
+        "neutron_neutron"})
 
-    nports = neutron_neutron.get_ports_by_key()
-    ntrunks = neutron_neutron.get_trunks_by_key()
-    vpninterfaces = l3vpn_vpn_interfaces.get_clist_by_key()
-    ifaces = ietf_interfaces_interfaces.get_clist_by_key()
-    # ifstates = ietf_interfaces_interfaces_state.get_clist_by_key()
+    vpninterfaces = config.gmodels.l3vpn_vpn_interfaces.get_clist_by_key()
+    ifaces = config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
+    # ifstates = config.gmodels.ietf_interfaces_interfaces_state.get_clist_by_key()
+    nports = config.gmodels.neutron_neutron.get_ports_by_key()
+    ntrunks = config.gmodels.neutron_neutron.get_trunks_by_key()
     subport_dict = {}
     for v in ntrunks.values():
         nport = nports.get(v.get('port-id'))
@@ -119,7 +114,7 @@ def analyze_trunks(args):
             print("\n------------------------------------")
             print("Analyzing Flow status for SubPorts")
             print("------------------------------------")
-            for flow in utils.sort(flows.get_all_flows(['ifm'], ['vlanid']), 'ifname'):
+            for flow in utils.sort(flows.get_all_flows(args, ['ifm'], ['vlanid']), 'ifname'):
                 subport = subport_dict.get(flow.get('ifname')) or None
                 vlanid = subport.get('segmentation-id') if subport else None
                 ofport = subport.get('ofport') if subport else None
@@ -133,8 +128,8 @@ def analyze_trunks(args):
                         subport.get('port-id'), flow.get('table'), flow_status))
 
 
-def analyze_neutron_port(port, iface, ifstate):
-    for flow in utils.sort(flows.get_all_flows(['all']), 'table'):
+def analyze_neutron_port(args, port, iface, ifstate):
+    for flow in utils.sort(flows.get_all_flows(args, ['all']), 'table'):
         if ((flow.get('ifname') == port['uuid']) or
                 (flow.get('lport') and ifstate and flow['lport'] == ifstate.get('if-index')) or
                 (iface['name'] == flow.get('ifname'))):
@@ -150,7 +145,7 @@ def analyze_inventory(args):
         "odl_inventory_nodes_config",
         "odl_inventory_nodes_operational"})
 
-    if args.isConfig:
+    if args.store == "config":
         nodes = config.gmodels.odl_inventory_nodes_config.get_clist_by_key()
         print("Inventory Config:")
     else:
@@ -169,7 +164,7 @@ def analyze_inventory(args):
             if not args.ifname or args.ifname in utils.nstr(flow.get('flow-name')):
                 flow_dict = {'table': table['id'], 'id': flow['id'], 'name': flow.get('flow-name'), 'flow': flow}
                 flow_list.append(flow_dict)
-    flows = sorted(flow_list, key=lambda x: x['table'])
-    for flow in flows:
+    flowlist = sorted(flow_list, key=lambda x: x['table'])
+    for flow in flowlist:
         print("Table: {}".format(flow['table']))
         print("FlowId: {}, FLowName: {} ".format(flow['id'], 'FlowName:', flow.get('name')))

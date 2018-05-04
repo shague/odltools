@@ -1,7 +1,6 @@
 import logging
 import re
 from pprint import pformat
-
 from odltools.netvirt import request
 from odltools.netvirt import tables
 

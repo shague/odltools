@@ -1,5 +1,4 @@
-import argparse
-
+# import argparse
 from odltools.netvirt import analyze
 from odltools.netvirt import show
 
@@ -22,7 +21,7 @@ def add_common_args(parser):
                         help="json dump with pretty_print")
 
 
-def add_interface_parser(parsers):
+def add_analyze_parser(parsers):
     parser = parsers.add_parser("interface")
     add_common_args(parser)
     parser.add_argument("--ifname",
@@ -31,12 +30,12 @@ def add_interface_parser(parsers):
 
     parser = parsers.add_parser("inventory")
     add_common_args(parser)
+    parser.add_argument("store", choices=["config", "operational"],
+                        help="config or operational inventory")
+    parser.add_argument("nodeid",
+                        help="an openflow node id, not including the prefix such as openflow:")
     parser.add_argument("--ifname",
                         help="interfaces-state:interface:name")
-    parser.add_argument("--isConfig",
-                        help="config or operational inventory")
-    parser.add_argument("--nodeid",
-                        help="an openflow node id, not including the prefix such as openflow:")
     parser.set_defaults(func=analyze.analyze_inventory)
 
     parser = parsers.add_parser("trunks")
@@ -74,8 +73,9 @@ def add_show_parser(parsers):
 
     parser = parsers.add_parser("stale-bindings")
     add_common_args(parser)
-    # parser.set_defaults(func=show.show_stale_bindings)
-    parser.add_argument("--func2", default=show.show_stale_bindings, help=argparse.SUPPRESS)
+    parser.set_defaults(func=show.show_stale_bindings)
+    # This was a test to see if we could call a func - which allows us more than func(args)
+    # parser.add_argument("--func2", default=show.show_stale_bindings, help=argparse.SUPPRESS)
     parser.set_defaults(func=call_func)
 
     parser = parsers.add_parser("tables")
@@ -86,7 +86,7 @@ def add_show_parser(parsers):
 def add_parser(parsers):
     parser = parsers.add_parser("analyze")
     subparsers = parser.add_subparsers(dest="subcommand")
-    add_interface_parser(subparsers)
+    add_analyze_parser(subparsers)
 
     parser = parsers.add_parser("show")
     subparsers = parser.add_subparsers(dest="showcommand")
