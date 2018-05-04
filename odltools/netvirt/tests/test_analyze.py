@@ -3,6 +3,7 @@ import unittest
 from odltools import logg
 from odltools.netvirt import analyze
 from odltools.netvirt import tests
+from odltools.netvirt.tests import capture
 
 
 class TestAnalyze(unittest.TestCase):
@@ -17,7 +18,8 @@ class TestAnalyze(unittest.TestCase):
         analyze.analyze_trunks(self.args)
 
     def test_analyze_interface(self):
-        analyze.analyze_interface(self.args)
+        with capture.capture(analyze.analyze_interface, self.args) as output:
+            self.assertTrue("98c2e265-b4f2-40a5-8f31-2fb5d2b2baf6" in output)
 
 
 if __name__ == '__main__':
