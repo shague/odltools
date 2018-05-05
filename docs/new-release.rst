@@ -3,7 +3,6 @@ Building a new release of odltools
 
 .. contents::
 
-
 Update HISTORY.rst or CHANGELOG.rst
 -----------------------------------
 
