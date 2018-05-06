@@ -44,7 +44,7 @@ Release on PyPi
 or in one shot:
 ::
 
-   python setup.py clean sdist bdsist_wheel upload
+   python setup.py clean sdist bdist_wheel upload
 
 .. note::
    The above commands assume a .pypirc like below is used:
