@@ -18,7 +18,7 @@ from odltools.mdsal.models.model import Model
 MODULE = "l3vpn"
 
 
-def vpn_instance_to_vpn_id(store, args):
+def vpn_interfaces(store, args):
     return VpnInterfaces(MODULE, store, args)
 
 
