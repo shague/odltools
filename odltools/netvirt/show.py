@@ -125,3 +125,44 @@ def show_flows(args):
         flows.show_stale_flows(args)
     if args.flowtype == "elan":
         flows.show_elan_flows(args)
+
+
+def show_neutron_networks(args):
+    config.get_models(args, {"neutron_neutron"})
+    objects = config.gmodels.neutron_neutron.get_networks_by_key()
+    print("\nneutron {}:\n".format(args.object))
+    for obj in objects:
+        print(utils.format_json(args, obj))
+
+
+def show_neutron_ports(args):
+    config.get_models(args, {"neutron_neutron"})
+    objects = config.gmodels.neutron_neutron.get_ports_by_key()
+    print("\nneutron {}:\n".format(args.object))
+    for obj in objects:
+        print(utils.format_json(args, obj))
+
+
+def show_neutron_trunks(args):
+    config.get_models(args, {"neutron_neutron"})
+    objects = config.gmodels.neutron_neutron.get_trunks_by_key()
+    print("\nneutron {}:\n".format(args.object))
+    for obj in objects:
+        print(utils.format_json(args, obj))
+
+
+def show_neutron(args):
+    if args.object == "all":
+        args.object = "networks"
+        show_neutron_networks(args)
+        args.object = "ports"
+        show_neutron_ports(args)
+        args.object = "trunks"
+        show_neutron_trunks(args)
+        return
+    if args.object == "networks":
+        show_neutron_networks(args)
+    if args.object == "ports":
+        show_neutron_ports(args)
+    if args.object == "trunks":
+        show_neutron_trunks(args)

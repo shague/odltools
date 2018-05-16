@@ -96,6 +96,16 @@ def add_show_parser(parsers):
     add_common_args(parser)
     parser.set_defaults(func=show.show_tables)
 
+    parser = parsers.add_parser("neutron-ports")
+    add_common_args(parser)
+    parser.set_defaults(func=show.show_neutron_ports)
+
+    parser = parsers.add_parser("neutron")
+    add_common_args(parser)
+    parser.add_argument("object", choices=["all", "networks", "ports", "trunks"])
+    parser.set_defaults(func=show.show_neutron)
+
+
 
 def add_parser(parsers):
     parser = parsers.add_parser("analyze")
