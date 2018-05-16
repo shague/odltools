@@ -228,13 +228,12 @@ def stale_acl_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces):
 
 def is_elantag_valid(eltag, eifaces, einsts, iface):
     if iface and eltag and eltag != get_eltag_for_iface(eifaces, einsts, iface):
-        print iface
         return False
     return True
 
 
 def is_tunnel_iface(iface):
-    if iface and iface.get('type','') == constants.IFTYPE_TUNNEL:
+    if iface and iface.get('type', '') == constants.IFTYPE_TUNNEL:
         return True
     return False
 
