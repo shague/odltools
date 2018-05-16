@@ -84,7 +84,7 @@ class Models:
         self.interface_service_bindings_service_bindings = \
             interface_service_bindings.service_bindings(Model.CONFIG, args)
         self.itm_state_tunnels_state = itm_state.tunnels_state(Model.OPERATIONAL, args)
-        self.l3vpn_vpn_interfaces = l3vpn.vpn_instance_to_vpn_id(Model.CONFIG, args)
+        self.l3vpn_vpn_interfaces = l3vpn.vpn_interfaces(Model.CONFIG, args)
         self.mip_mac = mip.mac(Model.CONFIG, args)
         self.network_topology_network_topology_config = network_topology.network_topology(Model.CONFIG, args)
         self.network_topology_network_topology_operational = network_topology.network_topology(Model.CONFIG, args)
@@ -115,7 +115,7 @@ class Models:
         if "itm_state_tunnels_state" in models:
             self.itm_state_tunnels_state = itm_state.tunnels_state(Model.OPERATIONAL, args)
         if "l3vpn_vpn_interfaces" in models:
-            self.l3vpn_vpn_interfaces = l3vpn.vpn_instance_to_vpn_id(Model.CONFIG, args)
+            self.l3vpn_vpn_interfaces = l3vpn.vpn_interfaces(Model.CONFIG, args)
         if "mip_mac" in models:
             self.mip_mac = mip.mac(Model.CONFIG, args)
         if "network_topology_network_topology_config" in models:

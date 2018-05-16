@@ -14,6 +14,7 @@
 
 import collections
 import logging
+from odltools.mdsal.models import constants
 from odltools.mdsal.models.model import Model
 from odltools.mdsal.models.opendaylight_inventory import Nodes
 from odltools.netvirt import utils
@@ -202,7 +203,7 @@ def stale_elan_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces):
         return create_flow_dict(flow_info, flow)
     if iface:
         flow_info['ifname'] = iface['name']
-    if not is_elantag_valid(eltag, eifaces, einsts, iface):
+    if not is_tunnel_iface(iface) and not is_elantag_valid(eltag, eifaces, einsts, iface):
         flow_info['reason'] = 'Lport Elantag mismatch'
         return create_flow_dict(flow_info, flow)
     return None
@@ -227,8 +228,15 @@ def stale_acl_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces):
 
 def is_elantag_valid(eltag, eifaces, einsts, iface):
     if iface and eltag and eltag != get_eltag_for_iface(eifaces, einsts, iface):
+        print iface
         return False
     return True
+
+
+def is_tunnel_iface(iface):
+    if iface and iface.get('type','') == constants.IFTYPE_TUNNEL:
+        return True
+    return False
 
 
 def is_correct_elan_flow(flow_info, mmac, einsts, flow_host):
