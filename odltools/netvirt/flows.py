@@ -87,11 +87,11 @@ def get_all_flows(args, modules=None, filter_by=None):
         ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
         ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_clist_by_key()
         einsts = einsts or config.gmodels.elan_elan_instances.get_clist_by_key()
-        eifaces = eifaces or config.gmodels.elan_elan_interfaces.get_elan_interfaces_by_key()
+        eifaces = eifaces or config.gmodels.elan_elan_interfaces.get_clist_by_key()
     if 'elan' in modules:
         ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
         einsts = einsts or config.gmodels.elan_elan_instances.get_clist_by_key()
-        eifaces = eifaces or config.gmodels.elan_elan_interfaces.get_elan_interfaces_by_key()
+        eifaces = eifaces or config.gmodels.elan_elan_interfaces.get_clist_by_key()
         ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_clist_by_key()
     if 'all' in modules:
         groups = groups or config.gmodels.odl_inventory_nodes_config.get_groups(of_nodes)
@@ -300,11 +300,11 @@ def get_stale_flows(modules=['ifm']):
         ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
         ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_clist_by_key()
         einsts = einsts or config.gmodels.elan_elan_instances.get_clist_by_key()
-        eifaces = eifaces or config.gmodels.elan_elan_interfaces.get_elan_interfaces_by_key()
+        eifaces = eifaces or config.gmodels.elan_elan_interfaces.get_clist_by_key()
     if 'elan' in modules:
         ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
         einsts = einsts or config.gmodels.elan_elan_instances.get_clist_by_key()
-        eifaces = eifaces or config.gmodels.elan_elan_interfaces.get_elan_interfaces_by_key()
+        eifaces = eifaces or config.gmodels.elan_elan_interfaces.get_clist_by_key()
         ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_clist_by_key()
     stale_flows = []
     for node in of_nodes.values():
