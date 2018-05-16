@@ -26,6 +26,7 @@ class TestShow(unittest.TestCase):
     def setUp(self):
         logg.Logger(logging.INFO, logging.INFO)
         self.args = tests.Args(path=tests.get_resources_path())
+        # self.args = tests.Args(path="/tmp/testmodels")
 
     def test_show_elan_instances(self):
         with capture.capture(show.show_elan_instances, self.args) as output:
@@ -45,6 +46,7 @@ class TestShow(unittest.TestCase):
         show.show_stale_bindings(self.args)
 
     def test_show_tables(self):
+        # TODO: different tables for Fluorine
         expected = "[0, 17, 18, 19, 20, 21, 22, 23, 24, 36, 38, " \
                    "43, 45, 48, 50, 51, 52, 55, 60, 80, 81, 210, " \
                    "211, 212, 213, 214, 215, 216, 217, 90, 220, " \
