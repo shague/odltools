@@ -51,9 +51,9 @@ class Model:
             logger.warning("Model data is wrong")
             self.data = None
 
-    def get_list(self, data, container_key, lst):
+    def get_list(self, data, container_key, child):
         c = data and data.get(container_key, {})
-        lst = c.get(lst, [])
+        lst = c.get(child, [])
         return lst
 
     def get_clist(self):

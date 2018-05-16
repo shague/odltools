@@ -23,16 +23,29 @@ def neutron(store, args):
 
 class Neutron(Model):
     CONTAINER = "neutron"
+    MODULE = "name"
+    UUID = "uuid"
+
+    FLOATINGIPS = "floatingips"
+    FLOATINGIP = "floatingip"
     NETWORKS = "networks"
     NETWORK = "network"
     PORTS = "ports"
     PORT = "port"
     ROUTERS = "routers"
     ROUTER = "router"
+    SECURITY_GROUPS = "security-groups"
+    SECURITY_GROUP = "security-group"
+    SECURITY_RULES = "security-rules"
+    SECURITY_RULE = "security-rule"
+    SUBNETS = "subnets"
+    SUBNET = "subnet"
     TRUNKS = "trunks"
     TRUNK = "trunk"
-    MODULE = "name"
-    UUID = "uuid"
+    ALL_OBJECTS = [FLOATINGIPS, NETWORKS, PORTS, SECURITY_GROUPS, SECURITY_RULES, SUBNETS, TRUNKS]
+    OBJECT_MAP = {FLOATINGIPS: FLOATINGIP, NETWORKS: NETWORK, PORTS: PORT, ROUTERS: ROUTER,
+                  SECURITY_GROUPS: SECURITY_GROUP, SECURITY_RULES: SECURITY_RULE,
+                  SUBNETS: SUBNET, TRUNKS: TRUNK}
 
     def get_clist(self):
         return self.data[self.CONTAINER]
@@ -49,11 +62,9 @@ class Neutron(Model):
             d[l[key]] = l
         return d
 
-    def get_networks_by_key(self, key="uuid"):
-        return self.get_ccl_by_key(self.CONTAINER, self.NETWORKS, self.NETWORK, key)
+    def get_objects_by_key(self, key="uuid", obj=NETWORKS):
+        item = self.OBJECT_MAP.get(obj, self.NETWORKS)
+        return self.get_ccl_by_key(self.CONTAINER, obj, item, key)
 
-    def get_ports_by_key(self, key="uuid"):
-        return self.get_ccl_by_key(self.CONTAINER, self.PORTS, self.PORT, key)
-
-    def get_trunks_by_key(self, key="uuid"):
-        return self.get_ccl_by_key(self.CONTAINER, self.TRUNKS, self.TRUNK, key)
+    def get_ports_by_fixed_ip(self, ):
+        lst = self.get_ccl_by_key(self.CONTAINER, self.PORTS, self.PORT, )

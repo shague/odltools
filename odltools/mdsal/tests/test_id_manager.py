@@ -15,23 +15,20 @@
 import logging
 import unittest
 from odltools import logg
-from odltools.mdsal.models.neutron import Neutron
-from odltools.mdsal.models.neutron import neutron
+from odltools.mdsal.models.id_manager import id_pools
 from odltools.mdsal.models.model import Model
 from odltools.mdsal import tests
 
 
-class TestNeutron(unittest.TestCase):
+class TestIdManager(unittest.TestCase):
     def setUp(self):
         logg.Logger(logging.INFO, logging.INFO)
         args = tests.Args(path=tests.get_resources_path())
-        self.neutron = neutron(Model.CONFIG, args)
+        self.id_pools = id_pools(Model.CONFIG, args)
 
     def test_get_objects_by_key(self):
-        d = self.neutron.get_objects_by_key(obj=Neutron.NETWORKS)
-        self.assertIsNotNone(d.get('bd8db3a8-2b30-4083-a8b3-b3fd46401142'))
-        d = self.neutron.get_objects_by_key(obj=Neutron.PORTS)
-        self.assertIsNotNone(d.get('8e3c262e-7b45-4222-ac4e-528db75e5516'))
+        d = self.id_pools.get_clist_by_key()
+        self.assertIsNotNone(d.get('interfaces'))
 
 
 if __name__ == '__main__':

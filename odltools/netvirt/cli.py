@@ -79,6 +79,9 @@ def add_show_parser(parsers):
 
     parser = parsers.add_parser("id-pools")
     add_common_args(parser)
+    parser.add_argument("type", choices=["all", "duplicate"])
+    parser.add_argument("--short", action="store_true", default=False,
+                        help="display less information")
     parser.set_defaults(func=show.show_idpools)
 
     parser = parsers.add_parser("groups")
@@ -96,13 +99,12 @@ def add_show_parser(parsers):
     add_common_args(parser)
     parser.set_defaults(func=show.show_tables)
 
-    parser = parsers.add_parser("neutron-ports")
-    add_common_args(parser)
-    parser.set_defaults(func=show.show_neutron_ports)
-
     parser = parsers.add_parser("neutron")
     add_common_args(parser)
-    parser.add_argument("object", choices=["all", "networks", "ports", "trunks"])
+    parser.add_argument("object", choices=["all", "floatingips", "networks", "ports", "routers",
+                                           "security-groups", "security-rules", "subnets", "trunks"])
+    parser.add_argument("--short", action="store_true", default=False,
+                        help="display less information")
     parser.set_defaults(func=show.show_neutron)
 
 

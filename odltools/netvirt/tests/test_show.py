@@ -15,6 +15,8 @@
 import logging
 import unittest
 from odltools import logg
+from odltools import cli as root_cli
+from odltools.netvirt import cli
 from odltools.netvirt import show
 from odltools.netvirt import tests
 from odltools.netvirt.tests import capture
@@ -54,6 +56,25 @@ class TestShow(unittest.TestCase):
         with capture.capture(show.show_tables, self.args) as output:
             self.assertEqual(expected, output)
         # print(output)
+
+    def test_show_idpools(self):
+        parser = root_cli.create_parser()
+        args = parser.parse_args(["show", "id-pools", "-p", "--path=" + tests.get_resources_path()])
+        with capture.capture(args.func, args) as output:
+            self.assertTrue("interfaces" in output)
+
+    def test_show_neutron2(self):
+        parser = root_cli.create_parser()
+        args = parser.parse_args(["show", "neutron", "ports", "-p", "--path=" + tests.get_resources_path()])
+        with capture.capture(args.func, args) as output:
+            self.assertTrue("8e3c262e-7b45-4222-ac4e-528db75e5516" in output)
+
+    def test_show_neutron(self):
+        self.args.object = "ports"
+        self.args.pretty_print = True
+        self.args.short = True
+        with capture.capture(show.show_neutron, self.args) as output:
+            self.assertTrue("8e3c262e-7b45-4222-ac4e-528db75e5516" in output)
 
 
 if __name__ == '__main__':

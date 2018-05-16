@@ -16,6 +16,7 @@ from odltools.netvirt import config
 from odltools.netvirt import flow_parser
 from odltools.netvirt import flows
 from odltools.mdsal.models import constants
+from odltools.mdsal.models.neutron import Neutron
 from odltools.mdsal.models.opendaylight_inventory import Nodes
 from odltools.mdsal.models.model import Model
 from odltools.netvirt import utils
@@ -36,7 +37,7 @@ def by_ifname(args, ifname, ifstates, ifaces):
     tunnel = None
     tun_state = None
     if iface and iface.get('type') == constants.IFTYPE_VLAN:
-        ports = config.gmodels.neutron_neutron.get_ports_by_key()
+        ports = config.gmodels.neutron_neutron.get_objects_by_key(obj=Neutron.PORTS)
         port = ports.get(ifname)
     elif iface and iface.get('type') == constants.IFTYPE_TUNNEL:
         tun_states = config.gmodels.itm_state_tunnels_state.get_clist_by_key()
@@ -86,7 +87,7 @@ def analyze_trunks(args):
     vpninterfaces = config.gmodels.l3vpn_vpn_interfaces.get_clist_by_key()
     ifaces = config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
     # ifstates = config.gmodels.ietf_interfaces_interfaces_state.get_clist_by_key()
-    nports = config.gmodels.neutron_neutron.get_ports_by_key()
+    nports = config.gmodels.neutron_neutron.get_objects_by_key(obj=Neutron.PORTS)
     ntrunks = config.gmodels.neutron_neutron.get_trunks_by_key()
     subport_dict = {}
     for v in ntrunks.values():
