@@ -18,6 +18,7 @@ from odltools.mdsal.models.neutron import Neutron
 from odltools.mdsal.models.opendaylight_inventory import Nodes
 from odltools.netvirt import config
 from odltools.netvirt import flows
+from odltools.netvirt import tables
 from odltools.netvirt import utils
 
 logger = logging.getLogger("netvirt.show")
@@ -127,12 +128,15 @@ def show_tables(args):
     config.get_models(args, {"odl_inventory_nodes_config"})
     of_nodes = config.gmodels.odl_inventory_nodes_config.get_clist_by_key()
 
-    tables = set()
+    tableset = set()
     for node in of_nodes.values():
         for table in node[Nodes.NODE_TABLE]:
             if table.get('flow'):
-                tables.add(table['id'])
-    print(list(tables))
+                tableset.add(table['id'])
+    result = ''
+    for table in (sorted(tableset)):
+        result = '{:3}:{} '.format(table, tables.get_table_name(table))
+        print(result)
 
 
 def show_flows(args):

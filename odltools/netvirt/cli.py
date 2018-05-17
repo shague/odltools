@@ -73,7 +73,8 @@ def add_show_parser(parsers):
     parser = parsers.add_parser("flows")
     add_common_args(parser)
     parser.add_argument("--modules",
-                        help="service module owning the flow")
+                        help="service module owning the flow",
+                        choices=["ifm", "acl", "elan", "l3vpn", "nat"])
     parser.add_argument("flowtype", choices=["all", "duplicate", "elan", "learned", "stale"])
     parser.add_argument("--metaonly", action="store_true",
                         help="display flow meta info only")
