@@ -16,22 +16,17 @@ import collections
 import logging
 from odltools.mdsal.models import constants
 from odltools.mdsal.models.model import Model
+from odltools.mdsal.models.neutron import Neutron
 from odltools.mdsal.models.opendaylight_inventory import Nodes
+from odltools.netvirt import tables as tbls
 from odltools.netvirt import utils
 from odltools.netvirt import config
 from odltools.netvirt import flow_parser
 
 logger = logging.getLogger("netvirt.flows")
 
-TABLE_MAP = {
-    'ifm': [0, 17, 220],
-    'l3vpn': [19, 20, 21, 22, 36, 81],
-    'elan': [50, 51, 52, 55],
-    'acl': [211, 212, 213, 214, 215, 241, 242, 243, 244, 245]
-}
-
 OPTIONALS = ['ifname', 'lport', 'elan-tag', 'mpls', 'vpnid', 'reason',
-             'dst-mac', 'src-mac', 'ofport', 'vlanid']
+             'dst-mac', 'src-mac', 'int-ip4', 'ext-ip4', 'ofport', 'vlanid']
 
 
 def filter_flow(flow_dict, filter_list):
@@ -55,7 +50,7 @@ def get_all_flows(args, modules=None, filter_by=None):
         "odl_l3vpn_vpn_instance_to_vpn_id",
         "odl_inventory_nodes_config"})
 
-    modules = modules if modules else ['ifm']
+    modules = modules if modules else "all"
     filter_by = filter_by if filter_by else []
     if not modules:
         return 'No modules specified'
@@ -72,7 +67,7 @@ def get_all_flows(args, modules=None, filter_by=None):
     if 'all' in modules:
         table_list = list(range(0, 255))
     else:
-        table_list = list(set([table for mod in modules for table in TABLE_MAP[mod]]))
+        table_list = list(set([table for mod in modules for table in tbls.get_table_map(mod)]))
     of_nodes = config.gmodels.odl_inventory_nodes_config.get_clist_by_key()
     if 'ifm' in modules:
         ifaces = config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
@@ -132,24 +127,29 @@ def create_flow_dict(flow_info, flow):
 def get_any_flow(flow, flow_info, groups, ifaces, ifstates, ifindexes,
                  fibentries, vpnids, vpninterfaces, einsts, eifaces):
     table = flow['table_id']
-    if table in TABLE_MAP['ifm']:
+    if table in tbls.get_table_map('ifm'):
         stale_ifm = stale_ifm_flow(flow, flow_info, ifaces, ifstates)
         flow_info = stale_ifm if stale_ifm else flow_parser.get_flow_info_from_ifm_table(flow_info, flow)
-    elif table in TABLE_MAP['acl']:
+    elif table in tbls.get_table_map('acl'):
         stale_acl = stale_acl_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces)
         flow_info = stale_acl if stale_acl else flow_parser.get_flow_info_from_acl_table(flow_info, flow)
-    elif table in TABLE_MAP['elan']:
+    elif table in tbls.get_table_map('elan'):
         stale_elan = stale_elan_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces)
         flow_info = stale_elan if stale_elan else flow_parser.get_flow_info_from_elan_table(flow_info, flow)
-    elif table in TABLE_MAP['l3vpn']:
+    elif table in tbls.get_table_map('l3vpn'):
         stale_l3vpn = stale_l3vpn_flow(flow, flow_info, groups, ifaces, ifindexes, vpnids, vpninterfaces, fibentries)
         flow_info = stale_l3vpn if stale_l3vpn else flow_parser.get_flow_info_from_l3vpn_table(flow_info, flow)
+    elif table in tbls.get_table_map('nat'):
+        stale_nat = stale_nat_flow(flow, flow_info, ifaces, ifindexes)
+        flow_info = stale_nat if stale_nat else flow_parser.get_flow_info_from_nat_table(flow_info, flow)
     else:
         flow_info = flow_parser.get_flow_info_from_any(flow_info, flow)
         iface = (get_iface_for_lport(ifaces, ifindexes, flow_info.get('lport'))
                  if flow_info.get('lport') else None)
         if iface and iface.get('name'):
             flow_info['ifname'] = iface['name']
+    # Get generic fields in here if not already captured
+    # flow_info = flow_parser.get_flow_info_from_any(flow_info, flow)
     return create_flow_dict(flow_info, flow)
 
 
@@ -226,6 +226,11 @@ def stale_acl_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces):
     return None
 
 
+def stale_nat_flow(flow, flow_info, ifaces, ifindexes):
+    # WiP - Vishal Thapar
+    return None
+
+
 def is_elantag_valid(eltag, eifaces, einsts, iface):
     if iface and eltag and eltag != get_eltag_for_iface(eifaces, einsts, iface):
         return False
@@ -289,7 +294,7 @@ def get_stale_flows(modules=['ifm']):
     vpnids = {}
     vpninterfaces = {}
     groups = {}
-    table_list = list(set([table for module in modules for table in TABLE_MAP[module]]))
+    table_list = list(set([table for module in modules for table in tbls.get_table_map(module)]))
     # table_list = [214, 244]
 
     of_nodes = config.gmodels.odl_inventory_nodes_config.get_clist_by_key()
@@ -320,14 +325,14 @@ def get_stale_flows(modules=['ifm']):
             for flow in table.get('flow', []):
                 flow_dict = None
                 flow_info = {'dpnid': Model.get_dpn_from_ofnodeid(node['id'])}
-                if 'ifm' in modules and table['id'] in TABLE_MAP['ifm']:
+                if 'ifm' in modules and table['id'] in tbls.get_table_map('ifm'):
                     flow_dict = stale_ifm_flow(flow, flow_info, ifaces, ifstates)
-                if 'l3vpn' in modules and table['id'] in TABLE_MAP['l3vpn']:
+                if 'l3vpn' in modules and table['id'] in tbls.get_table_map('l3vpn'):
                     flow_dict = stale_l3vpn_flow(flow, flow_info, groups, ifaces, ifindexes, vpnids,
                                                  vpninterfaces, fibentries)
-                if 'elan' in modules and table['id'] in TABLE_MAP['elan']:
+                if 'elan' in modules and table['id'] in tbls.get_table_map('elan'):
                     flow_dict = stale_elan_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces)
-                if 'acl' in modules and table['id'] in TABLE_MAP['acl']:
+                if 'acl' in modules and table['id'] in tbls.get_table_map('acl'):
                     flow_dict = stale_acl_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces)
                 if flow_dict is not None:
                     stale_flows.append(flow_dict)
@@ -362,9 +367,9 @@ def show_stale_flows(args, sort_by='table'):
         "odl_inventory_nodes_config",
         "odl_inventory_nodes_operational"})
     compute_map = config.gmodels.odl_inventory_nodes_operational.get_dpn_host_mapping()
-    nports = config.gmodels.neutron_neutron.get_ports_by_key()
-
-    for flow in utils.sort(get_stale_flows(['ifm', 'acl', 'elan', 'l3vpn']), sort_by):
+    nports = config.gmodels.neutron_neutron.get_objects_by_key(obj=Neutron.PORTS)
+    modules = [args.modules] if args.modules else tbls.get_all_modules()
+    for flow in utils.sort(get_stale_flows(modules), sort_by):
         host = compute_map.get(flow.get('dpnid'), flow.get('dpnid'))
         ip_list = get_ips_for_iface(nports, flow.get('ifname'))
         if ip_list:
@@ -373,7 +378,8 @@ def show_stale_flows(args, sort_by='table'):
         print(result)
         # path = get_data_path('flows', flow)
         # print("http://192.168.2.32:8383/restconf/config/{}".format(path))
-        # print("Flow: ", utils.format_json(args, flow_parser.parse_flow(flow['flow'])))
+        if not args.metaonly:
+            print("Flow: ", utils.format_json(args, flow_parser.parse_flow(flow['flow'])))
 
 
 def show_elan_flows(args):
@@ -462,7 +468,8 @@ def show_learned_mac_flows(args):
         "odl_l3vpn_vpn_instance_to_vpn_id",
         "odl_inventory_nodes_config",
         "odl_inventory_nodes_operational"})
-    nports = config.gmodels.neutron_neutron.get_ports_by_key(key='mac-address')
+    # nports = config.gmodels.neutron_neutron.get_ports_by_key(key='mac-address')
+    nports = config.gmodels.neutron_neutron.get_objects_by_key(obj=Neutron.PORTS, key='mac-address')
     compute_map = config.gmodels.odl_inventory_nodes_operational.get_dpn_host_mapping()
 
     flows = utils.sort(get_all_flows(args, ['elan']), 'table')
@@ -493,11 +500,9 @@ def dump_flows(args, modules=None, sort_by='table', filter_by=None):
     config.get_models(args, {
         "neutron_neutron",
         "odl_inventory_nodes_operational"})
-
-    modules = modules if modules else ['ifm']
     filter_by = filter_by if filter_by else []
     compute_map = config.gmodels.odl_inventory_nodes_operational.get_dpn_host_mapping()
-    nports = config.gmodels.neutron_neutron.get_ports_by_key()
+    nports = config.gmodels.neutron_neutron.get_objects_by_key(obj=Neutron.PORTS)
     for flow in utils.sort(get_all_flows(args, modules, filter_by), sort_by):
         host = compute_map.get(flow.get('dpnid'), flow.get('dpnid'))
         ip_list = get_ips_for_iface(nports, flow.get('ifname'))
@@ -507,7 +512,8 @@ def dump_flows(args, modules=None, sort_by='table', filter_by=None):
             flow['table'], host, flow['id'],
             utils.show_optionals(flow))
         print(result)
-        print("Flow: {}".format(utils.format_json(args, flow_parser.parse_flow(flow['flow']))))
+        if not args.metaonly:
+            print("Flow: {}".format(utils.format_json(args, flow_parser.parse_flow(flow['flow']))))
 
 
 def show_all_flows(args):
@@ -524,7 +530,8 @@ def show_all_flows(args):
         "odl_l3vpn_vpn_instance_to_vpn_id",
         "odl_inventory_nodes_config",
         "odl_inventory_nodes_operational"})
-    dump_flows(args, modules=['all'])
+    modules = [args.modules] if args.modules else tbls.get_all_modules()
+    dump_flows(args, modules)
 
 
 def get_ips_for_iface(nports, ifname):
