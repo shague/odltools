@@ -31,6 +31,8 @@ def show_optionals(flow):
     ip = flow.get('iface-ips')
     smac = flow.get('src-mac')
     dmac = flow.get('dst-mac')
+    intip4 = flow.get('int-ip4')
+    extip4 = flow.get('ext-ip4')
     vlanid = flow.get('vlanid')
     ofport = flow.get('ofport')
     if lport:
@@ -49,6 +51,10 @@ def show_optionals(flow):
         result = '{},SrcMac:{}'.format(result, smac)
     if dmac:
         result = '{},DstMac:{}'.format(result, dmac)
+    if intip4:
+        result = '{},InternalIPv4:{}'.format(result, intip4)
+    if extip4:
+        result = '{},ExternalIPv4:{}'.format(result, extip4)
     if ip:
         result = '{},LportIp:{}'.format(result, json.dumps(ip))
     result = '{},Reason:{}'.format(result, flow.get('reason'))

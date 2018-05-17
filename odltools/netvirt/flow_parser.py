@@ -179,6 +179,22 @@ def get_act_output(flow):
                     return action.get('output-action')
 
 
+def get_act_set_ipv4_dest(flow):
+    for instruction in flow['instructions'].get('instruction', []):
+        if 'apply-actions' in instruction:
+            for action in instruction['apply-actions'].get('action', []):
+                if 'set-field' in action and 'ipv4-destination' in action.get('set-field'):
+                    return action.get('set-field').get('ipv4-destination')
+
+
+def get_act_set_ipv4_src(flow):
+    for instruction in flow['instructions'].get('instruction', []):
+        if 'apply-actions' in instruction:
+            for action in instruction['apply-actions'].get('action', []):
+                if 'set-field' in action and 'ipv4-source' in action.get('set-field'):
+                    return action.get('set-field').get('ipv4-source')
+
+
 def get_match_metadata(flow):
     return flow['match'].get('metadata')
 
@@ -219,6 +235,14 @@ def get_match_ether_src(flow):
     return None
 
 
+def get_match_ipv4_dest(flow):
+    return flow['match'].get('ipv4-destination')
+
+
+def get_match_ipv4_src(flow):
+    return flow['match'].get('ipv4-source')
+
+
 def get_match_vlanid(flow):
     if flow.get('match').get('vlan-match') and flow['match'].get('vlan-match').get('vlan-id'):
         return flow['match'].get('vlan-match').get('vlan-id')
@@ -233,8 +257,8 @@ def get_match_inport(flow):
 
 def get_flow_info_from_any(flow_info, flow):
     w_mdata = get_instruction_writemeta(flow)
-    lport = None
-    if w_mdata:
+    lport = flow_info.get('lport') if flow_info else None
+    if not lport and w_mdata:
         metadata = w_mdata['metadata']
         mask = w_mdata['metadata-mask']
         if mask & LPORT_MASK:
@@ -243,9 +267,10 @@ def get_flow_info_from_any(flow_info, flow):
                 flow_info['lport'] = int(lport, 16)
     m_metadata = get_match_metadata(flow)
     if m_metadata:
+        elan = flow_info.get('elan-tag')
         metadata = m_metadata['metadata']
         mask = m_metadata['metadata-mask']
-        if mask & ELAN_TAG_MASK:
+        if not elan and mask & ELAN_TAG_MASK:
             elan = ('%x' % (metadata & ELAN_TAG_MASK))[:ELAN_HEX_LEN]
             if elan:
                 flow_info['elan-tag'] = int(elan, 16)
@@ -253,12 +278,22 @@ def get_flow_info_from_any(flow_info, flow):
             lport = ('%x' % (metadata & LPORT_MASK))[:-LPORT_MASK_ZLEN]
             if lport:
                 flow_info['lport'] = int(lport, 16)
-    m_ether_dest = get_match_ether_dest(flow)
-    if m_ether_dest and m_ether_dest.get('address'):
-        flow_info['dst-mac'] = m_ether_dest.get('address').lower()
-    m_ether_src = get_match_ether_src(flow)
-    if m_ether_src and m_ether_src.get('address'):
-        flow_info['src-mac'] = m_ether_src.get('address').lower()
+    if not flow_info.get('dst-mac'):
+        m_ether_dest = get_match_ether_dest(flow)
+        if m_ether_dest and m_ether_dest.get('address'):
+            flow_info['dst-mac'] = m_ether_dest.get('address').lower()
+    if not flow_info.get('src-mac'):
+        m_ether_src = get_match_ether_src(flow)
+        if m_ether_src and m_ether_src.get('address'):
+            flow_info['src-mac'] = m_ether_src.get('address').lower()
+    if not flow_info.get('dst-ip4'):
+        m_ipv4_dest = get_match_ipv4_dest(flow)
+        if m_ipv4_dest:
+            flow_info['dst-ip4'] = m_ipv4_dest
+    if not flow_info.get('src-ip4'):
+        m_ipv4_src = get_match_ipv4_src(flow)
+        if m_ipv4_src:
+            flow_info['src-ip4'] = m_ipv4_src
     return flow_info
 
 # Table specific parsing
@@ -374,6 +409,31 @@ def get_flow_info_from_acl_table(flow_info, flow):
     a_conntrk = get_act_conntrack(flow)
     if a_conntrk and a_conntrk.get('conntrack-zone'):
         flow_info['elan-tag'] = a_conntrk.get('conntrack-zone')
+    return flow_info
+
+
+def get_flow_info_from_nat_table(flow_info, flow):
+    m_metadata = get_match_metadata(flow)
+    if m_metadata:
+        metadata = m_metadata['metadata']
+        mask = m_metadata['metadata-mask']
+        if mask & LPORT_MASK:
+            lport = ('%x' % (metadata & LPORT_MASK))[:-LPORT_MASK_ZLEN]
+            flow_info['lport'] = int(lport, 16)
+    m_ipv4_dest = get_match_ipv4_dest(flow)
+    m_ipv4_src = get_match_ipv4_src(flow)
+    a_set_ipv4_dest = get_act_set_ipv4_dest(flow)
+    a_set_ipv4_src = get_act_set_ipv4_src(flow)
+    if flow['table_id'] in [25, 27]:
+        if a_set_ipv4_dest:
+            flow_info['int-ip4'] = a_set_ipv4_dest
+        if m_ipv4_dest:
+            flow_info['ext-ip4'] = m_ipv4_dest
+    if flow['table_id'] in [26, 28]:
+        if a_set_ipv4_src:
+            flow_info['ext-ip4'] = a_set_ipv4_src
+        if m_ipv4_src:
+            flow_info['int-ip4'] = m_ipv4_src
     return flow_info
 
 
