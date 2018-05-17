@@ -13,6 +13,8 @@
 # limitations under the License.
 
 from odltools.netvirt import config
+from odltools.netvirt.config import gnodes
+from odltools.netvirt.config import gports
 from odltools.netvirt import flow_parser
 from odltools.netvirt import flows
 from odltools.mdsal.models import constants
@@ -182,4 +184,67 @@ def analyze_inventory(args):
     flowlist = sorted(flow_list, key=lambda x: x['table'])
     for flow in flowlist:
         print("Table: {}".format(flow['table']))
-        print("FlowId: {}, FLowName: {} ".format(flow['id'], 'FlowName:', flow.get('name')))
+        print("FlowId: {}, FlowName: {} ".format(flow['id'], 'FlowName:', flow.get('name')))
+
+def analyze_nodes(args):
+    config.get_models(args, {
+        "ietf_interfaces_interfaces",
+        "itm_state_dpn_endpoints",
+        "neutron_neutron",
+        "odl_inventory_nodes_operational"})
+    nodes = config.gmodels.itm_state_dpn_endpoints.get_clist_by_key()
+
+    noded = {}
+    ports_by_name = {}
+
+    # for k, v in nodes.items():
+    #     dpn_id = v.get(DpnEndpoints.DPN_ID)
+    #     ip = config.gmodels.itm_state_dpn_endpoints.get_ip_address_from_dpn_info(v)
+    #     attrs = {"dpn_id": dpn_id, "ip": ip}
+    #     noded[dpn_id] = attrs
+
+    nodes = config.gmodels.odl_inventory_nodes_operational.get_clist_by_key()
+    for k, v in nodes.items():
+        dpn_id = k.split(":")[1]
+        ip = v.get("flow-node-inventory:ip-address")
+        ovs_version = v.get("flow-node-inventory:software")
+        node_connectors = v.get("node-connector")
+
+        ports = {}
+        for port in node_connectors:
+            port_no = port.get("flow-node-inventory:port-number")
+            if port_no == 0xfffffffe:
+                port_no = 0
+            name = port.get("flow-node-inventory:name")
+            port_attrs = {"port_no": port_no,
+                          "mac": port.get("flow-node-inventory:hardware-address"),
+                          "name": name}
+            ports[port_no] = port_attrs
+            ports_by_name[name] = port_attrs
+        attrs = {"dpn_id": dpn_id, "ip": ip, "ovs_version": ovs_version, "ports": ports}
+        noded[dpn_id] = attrs
+
+    neutron_ports = config.gmodels.neutron_neutron.get_objects_by_key(obj=Neutron.PORTS)
+    ifaces = config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
+    for iface_name, iface in ifaces.items():
+        for port_name, port in ports_by_name.items():
+            if iface_name == port_name:
+                ip = iface.get("odl-interface:tunnel-source")
+                # ip =
+
+    print("\nnodes\n")
+    for k, v in sorted(noded.items()):
+        dpn_id = v.get("dpn_id")
+        ip = v.get("ip")
+        print("dpn-id: {}, ip: {}".format(dpn_id, ip))
+
+    for k, v in sorted(noded.items()):
+        dpn_id = k
+        ip = v.get("ip")
+        ovs_version = v.get("ovs_version")
+        print("\ndpn-id: {}, ip: {}, version: {}".format(dpn_id, ip, ovs_version))
+        ports = v.get("ports")
+        for port_no, port_attrs in sorted(ports.items()):
+            print("{:3} {} {:14} {:15}".format(
+                port_attrs.get("port_no"), port_attrs.get("mac"), port_attrs.get("name"),
+                port_attrs.get("ip")))

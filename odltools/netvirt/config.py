@@ -15,6 +15,8 @@
 from odltools.mdsal.models.models import Models
 
 gmodels = None
+gnodes = {}
+gports = {}
 
 
 def get_models(args, models):

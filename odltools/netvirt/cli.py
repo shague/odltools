@@ -52,6 +52,10 @@ def add_analyze_parser(parsers):
                         help="interfaces-state:interface:name")
     parser.set_defaults(func=analyze.analyze_inventory)
 
+    parser = parsers.add_parser("nodes")
+    add_common_args(parser)
+    parser.set_defaults(func=analyze.analyze_nodes)
+
     parser = parsers.add_parser("trunks")
     add_common_args(parser)
     parser.set_defaults(func=analyze.analyze_trunks)

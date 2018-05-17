@@ -16,7 +16,6 @@ import logging
 import unittest
 from odltools import logg
 from odltools import cli as root_cli
-from odltools.netvirt import cli
 from odltools.netvirt import show
 from odltools.netvirt import tests
 from odltools.netvirt.tests import capture

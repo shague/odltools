@@ -33,7 +33,7 @@ def tunnels_state(store, args):
 class DpnEndpoints(Model):
     CONTAINER = "dpn-endpoints"
     CLIST = "DPN-TEPs-info"
-    CLIST_KEY = ""
+    CLIST_KEY = "DPN-ID"
     DPN_ID = "DPN-ID"
     TUNNEL_END_POINTS = "tunnel-end-points"
     IP_ADDRESS = "ip-address"
@@ -56,6 +56,10 @@ class DpnEndpoints(Model):
     def get_ip_address(self, dpn_id):
         tunnel_endpoints = self.get_tunnel_endpoints(dpn_id)
         return tunnel_endpoints[0][self.IP_ADDRESS]
+
+    def get_ip_address_from_dpn_info(self, dpn_info):
+        teps = dpn_info.get(self.TUNNEL_END_POINTS)[0]
+        return teps.get(self.IP_ADDRESS)
 
 
 class DpnTepsState(Model):

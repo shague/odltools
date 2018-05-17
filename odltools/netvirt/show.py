@@ -14,7 +14,6 @@
 
 import json
 import logging
-from odltools.mdsal.models.models import Model
 from odltools.mdsal.models.neutron import Neutron
 from odltools.mdsal.models.opendaylight_inventory import Nodes
 from odltools.netvirt import config

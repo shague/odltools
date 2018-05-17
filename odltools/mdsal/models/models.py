@@ -62,6 +62,7 @@ class Models:
         self.ietf_interfaces_interfaces = None
         self.ietf_interfaces_interfaces_state = None
         self.interface_service_bindings_service_bindings = None
+        self.itm_state_dpn_endpoints = None
         self.itm_state_tunnels_state = None
         self.l3vpn_vpn_interfaces = None
         self.mip_mac = None
@@ -112,6 +113,8 @@ class Models:
         if "interface_service_bindings_service_bindings" in models:
             self.interface_service_bindings_service_bindings = \
                 interface_service_bindings.service_bindings(Model.CONFIG, args)
+        if "itm_state_dpn_endpoints" in models:
+            self.itm_state_dpn_endpoints = itm_state.dpn_endpoints(Model.CONFIG, args)
         if "itm_state_tunnels_state" in models:
             self.itm_state_tunnels_state = itm_state.tunnels_state(Model.OPERATIONAL, args)
         if "l3vpn_vpn_interfaces" in models:

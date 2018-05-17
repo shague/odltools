@@ -15,6 +15,7 @@
 import logging
 import unittest
 from odltools import logg
+from odltools import cli as root_cli
 from odltools.netvirt import analyze
 from odltools.netvirt import tests
 from odltools.netvirt.tests import capture
@@ -46,6 +47,12 @@ class TestAnalyze(unittest.TestCase):
         # not a great test, but there are no flows in the operational
         with capture.capture(analyze.analyze_inventory, self.args) as output:
             self.assertTrue("Inventory Operational" in output)
+
+    def test_analyze_nodes(self):
+        parser = root_cli.create_parser()
+        args = parser.parse_args(["analyze", "nodes", "-p", "--path=" + tests.get_resources_path()])
+        with capture.capture(args.func, args) as output:
+            self.assertTrue("203251201875890" in output)
 
 
 if __name__ == '__main__':
