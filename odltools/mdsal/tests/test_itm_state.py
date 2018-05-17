@@ -33,7 +33,8 @@ class TestItmState(unittest.TestCase):
 
     def test_read_file(self):
         logger.debug("dpn-endpoints: %s", self.itm_state_dpn_endpoints.data)
-        logger.debug("dpn-endpoints: \n%s", self.itm_state_dpn_endpoints.pretty_format(self.itm_state_dpn_endpoints.data))
+        logger.debug("dpn-endpoints: \n%s",
+                     self.itm_state_dpn_endpoints.pretty_format(self.itm_state_dpn_endpoints.data))
 
     def test_get_ip_address(self):
         dpn_ids = self.itm_state_dpn_endpoints.get_dpn_ids()
@@ -45,7 +46,8 @@ class TestItmState(unittest.TestCase):
 
     def test_get_all(self):
         logger.debug("dpn-endpoints: %s", self.itm_state_dpn_endpoints.data)
-        logger.debug("dpn-endpoints: \n%s", self.itm_state_dpn_endpoints.pretty_format(self.itm_state_dpn_endpoints.data))
+        logger.debug("dpn-endpoints: \n%s",
+                     self.itm_state_dpn_endpoints.pretty_format(self.itm_state_dpn_endpoints.data))
 
         dpn_ids = self.itm_state_dpn_endpoints.get_dpn_ids()
         dpn_id = dpn_ids[0]

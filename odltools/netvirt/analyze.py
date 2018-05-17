@@ -13,8 +13,8 @@
 # limitations under the License.
 
 from odltools.netvirt import config
-from odltools.netvirt.config import gnodes
-from odltools.netvirt.config import gports
+# from odltools.netvirt.config import gnodes
+# from odltools.netvirt.config import gports
 from odltools.netvirt import flow_parser
 from odltools.netvirt import flows
 from odltools.mdsal.models import constants
@@ -186,6 +186,7 @@ def analyze_inventory(args):
         print("Table: {}".format(flow['table']))
         print("FlowId: {}, FlowName: {} ".format(flow['id'], 'FlowName:', flow.get('name')))
 
+
 def analyze_nodes(args):
     config.get_models(args, {
         "ietf_interfaces_interfaces",
@@ -224,7 +225,7 @@ def analyze_nodes(args):
         attrs = {"dpn_id": dpn_id, "ip": ip, "ovs_version": ovs_version, "ports": ports}
         noded[dpn_id] = attrs
 
-    neutron_ports = config.gmodels.neutron_neutron.get_objects_by_key(obj=Neutron.PORTS)
+    # neutron_ports = config.gmodels.neutron_neutron.get_objects_by_key(obj=Neutron.PORTS)
     ifaces = config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
     for iface_name, iface in ifaces.items():
         for port_name, port in ports_by_name.items():

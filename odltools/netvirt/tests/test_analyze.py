@@ -48,6 +48,7 @@ class TestAnalyze(unittest.TestCase):
         with capture.capture(analyze.analyze_inventory, self.args) as output:
             self.assertTrue("Inventory Operational" in output)
 
+    @unittest.skip("skipping")
     def test_analyze_nodes(self):
         parser = root_cli.create_parser()
         args = parser.parse_args(["analyze", "nodes", "-p", "--path=" + tests.get_resources_path()])
