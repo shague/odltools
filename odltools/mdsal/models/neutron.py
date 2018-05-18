@@ -65,3 +65,10 @@ class Neutron(Model):
     def get_objects_by_key(self, key="uuid", obj=NETWORKS):
         item = self.OBJECT_MAP.get(obj, self.NETWORKS)
         return self.get_ccl_by_key(self.CONTAINER, obj, item, key)
+
+    def get_ip_address_from_port(self, port):
+        fixed_ips = port.get("fixed-ips")
+        if fixed_ips is None:
+            return None
+        fixed_ip = fixed_ips[0]
+        return fixed_ip.get("ip-address")
