@@ -126,7 +126,8 @@ class Models:
         if "network_topology_network_topology_config" in models:
             self.network_topology_network_topology_config = network_topology.network_topology(Model.CONFIG, args)
         if "network_topology_network_topology_operational" in models:
-            self.network_topology_network_topology_operational = network_topology.network_topology(Model.CONFIG, args)
+            self.network_topology_network_topology_operational = \
+                network_topology.network_topology(Model.OPERATIONAL, args)
         if "neutron_neutron" in models:
             self.neutron_neutron = neutron.neutron(Model.CONFIG, args)
         if "odl_fib_fib_entries" in models:

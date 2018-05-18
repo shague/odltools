@@ -47,9 +47,10 @@ class Model:
         self.data = self.get_model_data()
         if self.data is None:
             logger.warning("Model data was not imported")
+            self.data = {}
         elif self.get_clist() is []:
             logger.warning("Model data is wrong")
-            self.data = None
+            self.data = {}
 
     def get_list(self, data, container_key, child):
         c = data and data.get(container_key, {})

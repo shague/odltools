@@ -29,7 +29,7 @@ class NetworkTopology(Model):
     OVSDB1 = "ovsdb:1"
 
     def get_clist(self):
-        return self.data[self.TOPOLOGY]
+        return self.data.get(self.TOPOLOGY, [])
 
     def get_topology_by_tid(self, tid="ovsdb:1"):
         topologies = self.get_clist()
@@ -48,3 +48,9 @@ class NetworkTopology(Model):
         for node in nodes:
             d[node[key]] = node
         return d
+
+    def get_host_id_from_node(self, node):
+        extids = node.get("ovsdb:openvswitch-external-ids", {})
+        for extid in extids:
+            if extid.get("external-id-key") == "odl_os_hostconfig_hostid":
+                return extid.get("external-id-value")
