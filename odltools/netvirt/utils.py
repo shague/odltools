@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import json
+import odltools.netvirt.services as svcs
 
 
 def format_json(args, data):
@@ -26,6 +27,7 @@ def show_optionals(flow):
     result = ''
     lport = flow.get('lport')
     elantag = flow.get('elan-tag')
+    serviceid = flow.get('serviceid')
     label = flow.get('mpls')
     vpnid = flow.get('vpnid')
     ip = flow.get('iface-ips')
@@ -33,10 +35,14 @@ def show_optionals(flow):
     dmac = flow.get('dst-mac')
     intip4 = flow.get('int-ip4')
     extip4 = flow.get('ext-ip4')
+    intmac = flow.get('int-mac')
+    extmac = flow.get('ext-mac')
     vlanid = flow.get('vlanid')
     ofport = flow.get('ofport')
     if lport:
         result = '{},LportTag:{}/{}'.format(result, lport, to_hex(lport))
+    if serviceid:
+        result = '{},Service:{}'.format(result, svcs.get_service_name(serviceid))
     if ofport:
         result = '{},OfPort:{}'.format(result, ofport)
     if vlanid:
@@ -55,10 +61,22 @@ def show_optionals(flow):
         result = '{},InternalIPv4:{}'.format(result, intip4)
     if extip4:
         result = '{},ExternalIPv4:{}'.format(result, extip4)
+    if intmac:
+        result = '{},InternalMAC:{}'.format(result, intmac)
+    if extmac:
+        result = '{},ExternalMAC:{}'.format(result, extmac)
     if ip:
         result = '{},LportIp:{}'.format(result, json.dumps(ip))
     result = '{},Reason:{}'.format(result, flow.get('reason'))
     return result
+
+
+def parse_ipv4(ip):
+    if ip and '/' in ip:
+        ip_arr = ip.split('/')
+        if ip_arr[1] == '32':
+            return ip_arr[0]
+    return ip
 
 
 def sort(data, field):
