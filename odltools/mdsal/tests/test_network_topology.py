@@ -25,7 +25,7 @@ class TestNetworkTopology(unittest.TestCase):
     def setUp(self):
         logg.Logger(logging.INFO, logging.INFO)
         args = tests.Args(path=tests.get_resources_path())
-        self.network_topology = network_topology(Model.CONFIG, args, NetworkTopology.OVSDB1)
+        self.network_topology = network_topology(Model.CONFIG, args, NetworkTopology.TOPOLOGY_OVSDB1)
 
     def test_get_topologies(self):
         self.assertIsNotNone(self.network_topology.get_clist())

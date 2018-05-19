@@ -24,6 +24,7 @@ class Args:
         self.user = user
         self.pw = pw
         self.path = path
+        self.modules = []
         self.pretty_print = pretty_print
 
 

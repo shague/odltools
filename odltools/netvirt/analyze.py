@@ -13,8 +13,6 @@
 # limitations under the License.
 
 from odltools.netvirt import config
-# from odltools.netvirt.config import gnodes
-# from odltools.netvirt.config import gports
 from odltools.netvirt import flow_parser
 from odltools.netvirt import flows
 from odltools.mdsal.models import constants
@@ -159,11 +157,11 @@ def analyze_neutron_port(args, port, iface, ifstate):
 
 def analyze_inventory(args):
     config.get_models(args, {
-        "odl_inventory_nodes_config",
+        "odl_inventory_nodes",
         "odl_inventory_nodes_operational"})
 
     if args.store == "config":
-        nodes = config.gmodels.odl_inventory_nodes_config.get_clist_by_key()
+        nodes = config.gmodels.odl_inventory_nodes.get_clist_by_key()
         print("Inventory Config:")
     else:
         print("Inventory Operational:")

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import argparse
+from odltools import logg
 import odltools.csit.cli
 import odltools.mdsal.cli
 import odltools.monitor.cli
@@ -21,8 +22,8 @@ import odltools.netvirt.cli
 
 def create_parser():
     parser = argparse.ArgumentParser(prog="python -m odltools", description="OpenDaylight Troubleshooting Tools")
-    # parser.add_argument("-v", "--verbose", dest="verbose", action="count", default=0,
-    #                     help="verbosity (-v, -vv)")
+    parser.add_argument("-v", "--verbose", dest="verbose", action="count", default=0,
+                        help="verbosity (-v, -vv)")
     parser.add_argument("-V", "--version", action="version",
                         version="%(prog)s (version {version})".format(version=odltools.__version__))
     subparsers = parser.add_subparsers(dest="command", description="Command Tool")
@@ -43,4 +44,6 @@ def parse_args():
 
 def main():
     args = parse_args()
+    if args.verbose > 0:
+        logg.debug()
     args.func(args)

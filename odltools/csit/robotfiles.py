@@ -71,9 +71,9 @@ class RobotFiles:
         with open(self.datafilepath, 'rb') as fp:
             for chunk in self.read_chunks(fp):
                 for m in re_st.finditer(chunk):
-                    logger.info("%02d-%02d: %s", m.start(), m.end(), m.group(0))
+                    logger.debug("%02d-%02d: %s", m.start(), m.end(), m.group(0))
                     cnt += 1
-        logger.info("total matches: %d", cnt)
+        logger.debug("total matches: %d", cnt)
 
     class State:
         def __init__(self):
@@ -265,7 +265,7 @@ class RobotFiles:
                 if RobotFiles.DUMP_FLOWS not in node:
                     continue
                 filename = ndir + "/" + self.fix_command_names(RobotFiles.DUMP_FLOWS)
-                logger.info("Processing: %s", filename)
+                logger.debug("Processing: %s", filename)
                 filename = filename + ".f.txt"
                 dump_flows = node[RobotFiles.DUMP_FLOWS]
                 fls = ovs_flows.Flows(dump_flows)

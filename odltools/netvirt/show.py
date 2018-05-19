@@ -96,9 +96,9 @@ def show_idpools(args):
 
 
 def show_groups(args):
-    config.get_models(args, {"odl_inventory_nodes_config"})
-    of_nodes = config.gmodels.odl_inventory_nodes_config.get_clist_by_key()
-    groups = config.gmodels.odl_inventory_nodes_config.get_groups(of_nodes)
+    config.get_models(args, {"odl_inventory_nodes"})
+    of_nodes = config.gmodels.odl_inventory_nodes.get_clist_by_key()
+    groups = config.gmodels.odl_inventory_nodes.get_groups(of_nodes)
     for dpn in groups:
         for group_key in groups[dpn]:
             print("Dpn: {}, ID: {}, Group: {}".format(dpn, group_key, utils.format_json(args, groups[dpn][group_key])))
@@ -125,8 +125,8 @@ def show_stale_bindings(args):
 
 
 def show_tables(args):
-    config.get_models(args, {"odl_inventory_nodes_config"})
-    of_nodes = config.gmodels.odl_inventory_nodes_config.get_clist_by_key()
+    config.get_models(args, {"odl_inventory_nodes"})
+    of_nodes = config.gmodels.odl_inventory_nodes.get_clist_by_key()
 
     tableset = set()
     for node in of_nodes.values():

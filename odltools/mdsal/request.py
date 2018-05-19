@@ -23,7 +23,7 @@ logger = logging.getLogger("mdsal.request")
 
 def debug_print(fname, text1, data):
     logger.debug("%s: request: %s: processed %d lines", fname, text1, len(data))
-    logger.debug("%s:\n%s", fname, json.dumps(data))
+    # logger.debug("%s:\n%s", fname, json.dumps(data))
     logger.debug("%s:\n%s", fname, json.dumps(data, indent=4, separators=(',', ': ')))
 
 

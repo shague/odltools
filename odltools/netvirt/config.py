@@ -100,9 +100,7 @@ def get_data_from_inventory():
 
 
 def get_data_from_topology():
-    print("shague: oops")
     nodes = gmodels.network_topology_network_topology_operational.get_nodes_by_tid_and_key()
-    print("shague: oops 2")
     for nodeid, node in nodes.items():
         conninfo = node.get("ovsdb:connection-info")
         # skip the nodes that are not the ovsdb nodes

@@ -48,7 +48,7 @@ def get_all_flows(args, modules=None, filter_by=None):
         "odl_fib_fib_entries",
         "odl_interface_meta_if_index_interface_map",
         "odl_l3vpn_vpn_instance_to_vpn_id",
-        "odl_inventory_nodes_config"})
+        "odl_inventory_nodes"})
 
     modules = modules if modules else "all"
     filter_by = filter_by if filter_by else []
@@ -68,7 +68,7 @@ def get_all_flows(args, modules=None, filter_by=None):
         table_list = list(range(0, 255))
     else:
         table_list = list(set([table for mod in modules for table in tbls.get_table_map(mod)]))
-    of_nodes = config.gmodels.odl_inventory_nodes_config.get_clist_by_key()
+    of_nodes = config.gmodels.odl_inventory_nodes.get_clist_by_key()
     if 'ifm' in modules:
         ifaces = config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
         ifstates = config.gmodels.ietf_interfaces_interfaces_state.get_clist_by_key()
@@ -78,7 +78,7 @@ def get_all_flows(args, modules=None, filter_by=None):
         fibentries = fibentries or config.gmodels.odl_fib_fib_entries.get_vrf_entries_by_key()
         vpnids = vpnids or config.gmodels.odl_l3vpn_vpn_instance_to_vpn_id.get_clist_by_key()
         vpninterfaces = vpninterfaces or config.gmodels.l3vpn_vpn_interfaces.get_clist_by_key()
-        groups = groups or config.gmodels.odl_inventory_nodes_config.get_groups(of_nodes)
+        groups = groups or config.gmodels.odl_inventory_nodes.get_groups(of_nodes)
     if 'acl' in modules:
         ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
         ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_clist_by_key()
@@ -90,7 +90,7 @@ def get_all_flows(args, modules=None, filter_by=None):
         eifaces = eifaces or config.gmodels.elan_elan_interfaces.get_clist_by_key()
         ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_clist_by_key()
     if 'all' in modules:
-        groups = groups or config.gmodels.odl_inventory_nodes_config.get_groups(of_nodes)
+        groups = groups or config.gmodels.odl_inventory_nodes.get_groups(of_nodes)
         ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
         ifstates = ifstates or config.gmodels.ietf_interfaces_interfaces_state.get_clist_by_key()
         ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_clist_by_key()
@@ -297,7 +297,7 @@ def get_stale_flows(modules=['ifm']):
     table_list = list(set([table for module in modules for table in tbls.get_table_map(module)]))
     # table_list = [214, 244]
 
-    of_nodes = config.gmodels.odl_inventory_nodes_config.get_clist_by_key()
+    of_nodes = config.gmodels.odl_inventory_nodes.get_clist_by_key()
     if 'ifm' in modules:
         ifaces = config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
         ifstates = config.gmodels.ietf_interfaces_interfaces_state.get_clist_by_key()
@@ -307,7 +307,7 @@ def get_stale_flows(modules=['ifm']):
         fibentries = fibentries or config.gmodels.odl_fib_fib_entries.get_vrf_entries_by_key()
         vpnids = vpnids or config.gmodels.odl_l3vpn_vpn_instance_to_vpn_id.get_clist_by_key()
         vpninterfaces = vpninterfaces or config.gmodels.l3vpn_vpn_interfaces.get_clist_by_key()
-        groups = groups or config.gmodels.odl_inventory_nodes_config.get_groups(of_nodes)
+        groups = groups or config.gmodels.odl_inventory_nodes.get_groups(of_nodes)
     if 'acl' in modules:
         ifaces = ifaces or config.gmodels.ietf_interfaces_interfaces.get_clist_by_key()
         ifindexes = ifindexes or config.gmodels.odl_interface_meta_if_index_interface_map.get_clist_by_key()
@@ -364,7 +364,7 @@ def show_stale_flows(args, sort_by='table'):
         "odl_fib_fib_entries",
         "odl_interface_meta_if_index_interface_map",
         "odl_l3vpn_vpn_instance_to_vpn_id",
-        "odl_inventory_nodes_config",
+        "odl_inventory_nodes",
         "odl_inventory_nodes_operational"})
     compute_map = config.gmodels.odl_inventory_nodes_operational.get_dpn_host_mapping()
     nports = config.gmodels.neutron_neutron.get_objects_by_key(obj=Neutron.PORTS)
@@ -389,7 +389,7 @@ def show_elan_flows(args):
         "ietf_interfaces_interfaces",
         "ietf_interfaces_interfaces_state",
         "odl_interface_meta_if_index_interface_map",
-        "odl_inventory_nodes_config",
+        "odl_inventory_nodes",
         "odl_inventory_nodes_operational"})
     compute_map = config.gmodels.odl_inventory_nodes_operational.get_dpn_host_mapping()
     for flow in utils.sort(get_all_flows(args, modules=['elan']), 'id'):
@@ -423,7 +423,7 @@ def show_dup_flows(args):
         "odl_fib_fib_entries",
         "odl_interface_meta_if_index_interface_map",
         "odl_l3vpn_vpn_instance_to_vpn_id",
-        "odl_inventory_nodes_config",
+        "odl_inventory_nodes",
         "odl_inventory_nodes_operational"})
     mmac = {}  # config.gmodels.mip_mac.get_entries_by_key()
     einsts = config.gmodels.elan_elan_instances.get_clist_by_key()
@@ -466,7 +466,7 @@ def show_learned_mac_flows(args):
         "odl_fib_fib_entries",
         "odl_interface_meta_if_index_interface_map",
         "odl_l3vpn_vpn_instance_to_vpn_id",
-        "odl_inventory_nodes_config",
+        "odl_inventory_nodes",
         "odl_inventory_nodes_operational"})
     # nports = config.gmodels.neutron_neutron.get_ports_by_key(key='mac-address')
     nports = config.gmodels.neutron_neutron.get_objects_by_key(obj=Neutron.PORTS, key='mac-address')
@@ -528,7 +528,7 @@ def show_all_flows(args):
         "odl_fib_fib_entries",
         "odl_interface_meta_if_index_interface_map",
         "odl_l3vpn_vpn_instance_to_vpn_id",
-        "odl_inventory_nodes_config",
+        "odl_inventory_nodes",
         "odl_inventory_nodes_operational"})
     modules = [args.modules] if args.modules else tbls.get_all_modules()
     dump_flows(args, modules)

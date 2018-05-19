@@ -17,7 +17,7 @@ from odltools.mdsal.models.model import Model
 MODULE = "network-topology"
 
 
-def network_topology(store, args, mid="ovsdb:1"):
+def network_topology(store, args, mid="topology/ovsdb:1"):
     return NetworkTopology(MODULE, store, args, mid)
 
 
@@ -27,6 +27,7 @@ class NetworkTopology(Model):
     TOPOLOGY = "topology"
     NODE = "node"
     OVSDB1 = "ovsdb:1"
+    TOPOLOGY_OVSDB1 = TOPOLOGY + "/" + OVSDB1
 
     def get_clist(self):
         return self.data.get(self.TOPOLOGY, [])

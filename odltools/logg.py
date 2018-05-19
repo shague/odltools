@@ -14,9 +14,22 @@
 
 import logging
 
+logger = None
+ch = None
+fh = None
+
+
+def debug():
+    ch.setLevel(logging.DEBUG)
+    # logger.setLevel(min([ch.level, fh.level]))
+
 
 class Logger:
     def __init__(self, console_level=logging.INFO, file_level=logging.DEBUG):
+        global logger
+        global ch
+        global fh
+
         logger = logging.getLogger()
         formatter = logging.Formatter('%(asctime)s | %(levelname).3s | %(name)-20s | %(lineno)04d | %(message)s')
         ch = logging.StreamHandler()
