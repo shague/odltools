@@ -18,6 +18,7 @@ import odltools.csit.cli
 import odltools.mdsal.cli
 import odltools.monitor.cli
 import odltools.netvirt.cli
+import odltools.karaf.cli
 
 
 def create_parser():
@@ -31,6 +32,7 @@ def create_parser():
     odltools.mdsal.cli.add_parser(subparsers)
     odltools.monitor.cli.add_parser(subparsers)
     odltools.netvirt.cli.add_parser(subparsers)
+    odltools.karaf.cli.add_parser(subparsers)
 
     return parser
 
