@@ -15,7 +15,7 @@
 from odltools.karaf import dump
 
 
-def add_get_parser(parsers):
+def add_dump_parser(parsers):
     parser = parsers.add_parser("dump", help="Dump a karaf log")
     parser.add_argument("--path", required=True,
                         help="Path to the karaf file")
@@ -27,4 +27,4 @@ def add_get_parser(parsers):
 def add_parser(parsers):
     parser = parsers.add_parser("karaf", description="Karaf log tools")
     subparsers = parser.add_subparsers(dest="subcommand", description="Karaf tools")
-    add_get_parser(subparsers)
+    add_dump_parser(subparsers)
