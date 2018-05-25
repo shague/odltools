@@ -499,18 +499,22 @@ def get_stale_bindings(args):
 def dump_flows(args, modules=None, sort_by='table', filter_by=None):
     config.get_models(args, {
         "neutron_neutron",
-        "odl_inventory_nodes_operational"})
+        "odl_inventory_nodes_operational",
+        "network_topology_network_topology_operational"})
     filter_by = filter_by if filter_by else []
     compute_map = config.gmodels.odl_inventory_nodes_operational.get_dpn_host_mapping()
+    node_map = config.gmodels.network_topology_network_topology_operational.get_dpn_host_mapping()
     nports = config.gmodels.neutron_neutron.get_objects_by_key(obj=Neutron.PORTS)
     for flow in utils.sort(get_all_flows(args, modules, filter_by), sort_by):
-        host = compute_map.get(flow.get('dpnid'), flow.get('dpnid'))
+        dpnid = flow.get('dpnid')
+        host = compute_map.get(dpnid)
+        if not host:
+            host = node_map.get(int(dpnid))
         ip_list = get_ips_for_iface(nports, flow.get('ifname'))
         if ip_list:
             flow['iface-ips'] = ip_list
-        result = 'Table:{}, Host:{}, FlowId:{}{}'.format(
-            flow['table'], host, flow['id'],
-            utils.show_optionals(flow))
+        flow['host'] = host
+        result = utils.show_all(flow)
         print(result)
         if not args.metaonly:
             print("Flow: {}".format(utils.format_json(args, flow_parser.parse_flow(flow['flow']))))

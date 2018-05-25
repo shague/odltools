@@ -50,8 +50,38 @@ class NetworkTopology(Model):
             d[node[key]] = node
         return d
 
+    def get_nodes_by_dpid(self, tid="ovsdb:1"):
+        d = {}
+        nodes = self.get_nodes_by_tid(tid)
+        for node in nodes:
+            dpid = self.get_datapathid_from_node(node)
+            if dpid:
+                d[dpid] = node
+        return d
+
+    def get_dpn_host_mapping(self):
+        d = {}
+        nodes = self.get_nodes_by_tid_and_key()
+        for nodeid in nodes:
+            node = nodes.get(nodeid)
+            dpid = self.get_datapathid_from_node(node)
+            if dpid:
+                parentid = self.get_parent_nodeid(nodeid)
+                host = self.get_host_id_from_node(nodes.get(parentid))
+                d[dpid] = host
+        return d
+
     def get_host_id_from_node(self, node):
         extids = node.get("ovsdb:openvswitch-external-ids", {})
         for extid in extids:
-            if extid.get("external-id-key") == "odl_os_hostconfig_hostid":
+            if extid.get("external-id-key") == "hostname":
                 return extid.get("external-id-value")
+
+    def get_datapathid_from_node(self, node):
+        datapathid = node.get("ovsdb:datapath-id")
+        if datapathid:
+            return int(datapathid.replace(':', ''), 16)
+
+    def get_parent_nodeid(self, nodeid):
+        parentid = nodeid.split('/bridge/')[0]
+        return parentid if parentid else ''

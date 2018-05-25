@@ -22,8 +22,15 @@ def format_json(args, data):
         return json.dumps(data)
 
 
-def show_optionals(flow):
-    result = ''
+def show_all(flow):
+    dpnid = flow.get('dpnid')
+    host = flow.get('host')
+    result = 'Table:{}'.format(flow['table'])
+    if host:
+        result = '{}, Host:{}'.format(result, host)
+    if dpnid:
+        result = '{}, DpnId:{}/{}'.format(result, dpnid, to_hex(dpnid))
+    result = '{}, FlowId:{}'.format(result, flow.get('id'))
     lport = flow.get('lport')
     elantag = flow.get('elan-tag')
     label = flow.get('mpls')
