@@ -36,7 +36,7 @@ class TestOpendaylightInventory(unittest.TestCase):
 
     def test_get_dpn_host_mapping(self):
         d = self.nodes.get_dpn_host_mapping()
-        self.assertIsNotNone(d.get('132319289050514'))
+        self.assertIsNone(d.get('132319289050514'))
 
 
 if __name__ == '__main__':
