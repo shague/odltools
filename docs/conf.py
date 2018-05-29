@@ -23,12 +23,6 @@ project = u'odltools'
 copyright = u'2018, Sam Hague'
 author = u'Sam Hague'
 
-# The short X.Y version
-version = u''
-# The full version, including alpha/beta/rc tags
-release = u''
-
-
 # -- General configuration ---------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.

@@ -1,9 +1,0 @@
-include .travis.yml
-include AUTHORS.txt
-include CHANGES.rst
-include CONTRIBUTING.rst
-include LICENSE
-include requirements.txt
-include test-requirements.txt
-include tox.ini
-recursive-include odltools/tests *.json
