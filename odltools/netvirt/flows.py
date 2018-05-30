@@ -25,8 +25,9 @@ from odltools.netvirt import flow_parser
 
 logger = logging.getLogger("netvirt.flows")
 
-OPTIONALS = ['ifname', 'lport', 'elan-tag', 'mpls', 'vpnid', 'reason',
-             'dst-mac', 'src-mac', 'int-ip4', 'ext-ip4', 'ofport', 'vlanid']
+OPTIONALS = ['ifname', 'lport', 'elan-tag', 'mpls', 'vpnid', 'reason', 'serviceid',
+             'dst-mac', 'src-mac', 'int-ip4', 'ext-ip4', 'int-mac', 'ext-mac',
+             'ofport', 'vlanid']
 
 
 def filter_flow(flow_dict, filter_list):
@@ -128,20 +129,15 @@ def get_any_flow(flow, flow_info, groups, ifaces, ifstates, ifindexes,
                  fibentries, vpnids, vpninterfaces, einsts, eifaces):
     table = flow['table_id']
     if table in tbls.get_table_map('ifm'):
-        stale_ifm = stale_ifm_flow(flow, flow_info, ifaces, ifstates)
-        flow_info = stale_ifm if stale_ifm else flow_parser.get_flow_info_from_ifm_table(flow_info, flow)
+        return stale_ifm_flow(flow, flow_info, ifaces, ifstates)
     elif table in tbls.get_table_map('acl'):
-        stale_acl = stale_acl_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces)
-        flow_info = stale_acl if stale_acl else flow_parser.get_flow_info_from_acl_table(flow_info, flow)
+        return stale_acl_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces)
     elif table in tbls.get_table_map('elan'):
-        stale_elan = stale_elan_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces)
-        flow_info = stale_elan if stale_elan else flow_parser.get_flow_info_from_elan_table(flow_info, flow)
+        return stale_elan_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces)
     elif table in tbls.get_table_map('l3vpn'):
-        stale_l3vpn = stale_l3vpn_flow(flow, flow_info, groups, ifaces, ifindexes, vpnids, vpninterfaces, fibentries)
-        flow_info = stale_l3vpn if stale_l3vpn else flow_parser.get_flow_info_from_l3vpn_table(flow_info, flow)
+        return stale_l3vpn_flow(flow, flow_info, groups, ifaces, ifindexes, vpnids, vpninterfaces, fibentries)
     elif table in tbls.get_table_map('nat'):
-        stale_nat = stale_nat_flow(flow, flow_info, ifaces, ifindexes)
-        flow_info = stale_nat if stale_nat else flow_parser.get_flow_info_from_nat_table(flow_info, flow)
+        return stale_nat_flow(flow, flow_info, ifaces, ifindexes)
     else:
         flow_info = flow_parser.get_flow_info_from_any(flow_info, flow)
         iface = (get_iface_for_lport(ifaces, ifindexes, flow_info.get('lport'))
@@ -156,6 +152,7 @@ def get_any_flow(flow, flow_info, groups, ifaces, ifstates, ifindexes,
 def stale_l3vpn_flow(flow, flow_info, groups, ifaces, ifindexes,
                      vpnids, vpninterfaces, fibentries):
     flow_parser.get_flow_info_from_l3vpn_table(flow_info, flow)
+    flow_info['reason'] = None
     lport = flow_info.get('lport')
     iface = get_iface_for_lport(ifaces, ifindexes, lport)
     if lport and not iface:
@@ -189,12 +186,13 @@ def stale_l3vpn_flow(flow, flow_info, groups, ifaces, ifindexes,
                     groups.get(gid).get('group-name', '') != prefix):
             flow_info['reason'] = 'DestPrefix mismatch for label and group'
             return create_flow_dict(flow_info, flow)
-    return None
+    return create_flow_dict(flow_info, flow)
 
 
 def stale_elan_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces):
     # hex(int(mask, 16) & int(hexa, 16))
     flow_parser.get_flow_info_from_elan_table(flow_info, flow)
+    flow_info['reason'] = None
     lport = flow_info.get('lport')
     eltag = flow_info.get('elan-tag')
     iface = get_iface_for_lport(ifaces, ifindexes, lport)
@@ -206,11 +204,12 @@ def stale_elan_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces):
     if not is_tunnel_iface(iface) and not is_elantag_valid(eltag, eifaces, einsts, iface):
         flow_info['reason'] = 'Lport Elantag mismatch'
         return create_flow_dict(flow_info, flow)
-    return None
+    return create_flow_dict(flow_info, flow)
 
 
 def stale_acl_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces):
     flow_parser.get_flow_info_from_acl_table(flow_info, flow)
+    flow_info['reason'] = None
     lport = flow_info.get('lport')
     eltag = flow_info.get('elan-tag')
     iface = get_iface_for_lport(ifaces, ifindexes, lport)
@@ -222,13 +221,14 @@ def stale_acl_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces):
     if not is_elantag_valid(eltag, eifaces, einsts, iface):
         flow_info['reason'] = 'Lport Elantag mismatch'
         return create_flow_dict(flow_info, flow)
-    # return create_flow_dict(flow_info, flow)
-    return None
+    return create_flow_dict(flow_info, flow)
 
 
 def stale_nat_flow(flow, flow_info, ifaces, ifindexes):
     # WiP - Vishal Thapar
-    return None
+    flow_parser.get_flow_info_from_nat_table(flow_info, flow)
+    flow_info['reason'] = None
+    return create_flow_dict(flow_info, flow)
 
 
 def is_elantag_valid(eltag, eifaces, einsts, iface):
@@ -334,9 +334,10 @@ def get_stale_flows(modules=['ifm']):
                     flow_dict = stale_elan_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces)
                 if 'acl' in modules and table['id'] in tbls.get_table_map('acl'):
                     flow_dict = stale_acl_flow(flow, flow_info, ifaces, ifindexes, einsts, eifaces)
-                if flow_dict is not None:
+                if 'nat' in modules and table['id'] in tbls.get_table_map('nat'):
+                    flow_dict = stale_nat_flow(flow, flow_info, ifaces, ifstates)
+                if flow_dict.get('reason'):
                     stale_flows.append(flow_dict)
-
     return stale_flows
 
 
@@ -547,6 +548,7 @@ def stale_ifm_flow(flow, flow_info, ifaces, ifstates):
     flow_parser.get_flow_info_from_ifm_table(flow_info, flow)
     flow_ifname = flow_info['ifname']
     iface = ifaces.get(flow_ifname)
+    flow_info['reason'] = None
     if flow_ifname is not None and not iface:
         flow_info['reason'] = 'Interface doesnt exist'
         return create_flow_dict(flow_info, flow)
@@ -564,8 +566,9 @@ def stale_ifm_flow(flow, flow_info, ifaces, ifstates):
         if (flow_info.get('ofport') and ifstate.get('lower-layer-if')
             and flow_info['ofport'] != Model.get_ofport_from_ncid(ifstate.get('lower-layer-if')[0])):  # NOQA
             flow_info['reason'] = 'OfPort mismatch'
+            return create_flow_dict(flow_info, flow)
         if (flow_info.get('vlanid') and iface.get('odl-interface:vlan-id')
             and flow_info['vlanid'] != iface.get('odl-interface:vlan-id')):  # NOQA
             flow_info['reason'] = 'VlanId mismatch'
-    return None
-    # return create_flow_dict(flow_info, flow)
+            return create_flow_dict(flow_info, flow)
+    return create_flow_dict(flow_info, flow)
