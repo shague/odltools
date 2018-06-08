@@ -46,5 +46,7 @@ class Nodes(Model):
         nodez = oper_nodes or self.get_clist_by_key()
         for node in nodez.values():
             dpnid = self.get_dpn_from_ofnodeid(node['id'])
-            nodes_dict[dpnid] = node.get('flow-node-inventory:description', '')
+            desc = node.get('flow-node-inventory:description', '')
+            if desc and desc != 'None':
+                nodes_dict[dpnid] = desc.encode('utf8')
         return nodes_dict
