@@ -375,7 +375,8 @@ def show_stale_flows(args, sort_by='table'):
         ip_list = get_ips_for_iface(nports, flow.get('ifname'))
         if ip_list:
             flow['iface-ips'] = ip_list
-        result = "Table:{}, Host:{}, FlowId:{}{}".format(flow['table'], host, flow['id'], utils.show_optionals(flow))
+        flow['host'] = host
+        result = utils.show_all(flow)
         print(result)
         # path = get_data_path('flows', flow)
         # print("http://192.168.2.32:8383/restconf/config/{}".format(path))
@@ -395,9 +396,9 @@ def show_elan_flows(args):
     compute_map = config.gmodels.odl_inventory_nodes_operational.get_dpn_host_mapping()
     for flow in utils.sort(get_all_flows(args, modules=['elan']), 'id'):
         host = compute_map.get(flow.get('dpnid'), flow.get('dpnid'))
-        result = "MacHost:{}{}, Table:{}, FlowId:{}, {}, Flow:{}".format(
-            flow['id'][-17:], host, flow['table'], flow['id'], utils.show_optionals(flow),
-            utils.format_json(args, flow_parser.parse_flow(flow['flow'])))
+        flow['host'] = host
+        result = "{}, Flow:{}".format(utils.show_all(flow),
+                                      utils.format_json(args, flow_parser.parse_flow(flow['flow'])))
         print(result)
         # print("Flow: {}".format(utils.format_json(args, flow_parser.parse_flow(flow['flow']))))
 
@@ -482,9 +483,8 @@ def show_learned_mac_flows(args):
              and not nports.get(flow_info.get('src-mac')))
             or (flow_info.get('table') == 51 and not nports.get(flow_info.get('dst-mac')))):  # NOQA
 
-            result = 'Table:{}, Host:{}, FlowId:{}{}'.format(
-                flow_info.get('table'), host, flow.get('id'),
-                utils.show_optionals(flow_info))
+            flow['host'] = host
+            result = utils.show_all(flow_info)
             print(result)
             print("Flow: {}".format(utils.format_json(args, flow_parser.parse_flow(flow))))
 

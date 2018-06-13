@@ -148,9 +148,7 @@ def analyze_neutron_port(args, port, iface, ifstate):
         if ((flow.get('ifname') == port['uuid']) or
                 (flow.get('lport') and ifstate and flow['lport'] == ifstate.get('if-index')) or
                 (iface['name'] == flow.get('ifname'))):
-            result = 'Table:{},FlowId:{}{}'.format(
-                flow['table'], flow['id'],
-                utils.show_optionals(flow))
+            result = utils.show_all(flow)
             print(result)
             print("Flow: {}".format(utils.format_json(None, flow_parser.parse_flow(flow.get('flow')))))
 
