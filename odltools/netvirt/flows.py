@@ -398,7 +398,7 @@ def show_elan_flows(args):
         host = compute_map.get(flow.get('dpnid'), flow.get('dpnid'))
         flow['host'] = host
         result = "{}, Flow:{}".format(utils.show_all(flow),
-            utils.format_json(args, flow_parser.parse_flow(flow['flow'])))
+                                      utils.format_json(args, flow_parser.parse_flow(flow['flow'])))
         print(result)
         # print("Flow: {}".format(utils.format_json(args, flow_parser.parse_flow(flow['flow']))))
 
