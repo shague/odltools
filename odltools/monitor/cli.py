@@ -42,4 +42,5 @@ def add_parser(parsers):
     parser.add_argument('config_file',
                         metavar='cluster.json',
                         help='JSON Cluster configuration file in the '
-                             'following format:\n{}'.format(JSON_FORMAT))
+                             'following format:\n{}'.format(JSON_FORMAT),
+                        required=True)
